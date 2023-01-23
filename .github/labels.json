@@ -1,0 +1,19 @@
+[
+  { "name": "s¹ 🔥🔥 critical", "color": "#E53935" },
+  { "name": "s² 🔥 important", "color": "#FB8C00" },
+  { "name": "s³ 💧 nice to have", "color": "#FDD835" },
+  { "name": "s⁴ 💧💧 low priority", "color": "#039BE5" },
+
+  { "name": "t¹ 🐞 bug", "color": "#F44336" },
+  { "name": "t² 📚 documentation", "color": "#FDD835" },
+  { "name": "t³ ✨ feature", "color": "#8bc34A" },
+  { "name": "t⁴ 💡 idea", "color": "#1976D2" },
+  { "name": "t⁵ 🔜 todo", "color": "#311B92" },
+
+  { "name": "x¹ ⋅ could not reproduce", "color": "#CFD8DC" },
+  { "name": "x² ⋅ duplicate", "color": "#CFD8DC" },
+  { "name": "x³ ⋅ hold", "color": "#CFD8DC" },
+  { "name": "x⁴ ⋅ in progress", "color": "#1B5E20" },
+  { "name": "x⁵ ⋅ need more info", "color": "#6A1B9A" },
+  { "name": "x⁶ ⋅ wontfix", "color": "#CFD8DC" }
+]

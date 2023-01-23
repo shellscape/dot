@@ -1,0 +1,42 @@
+{
+  "name": "@dot/config",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A configuration contract for Node + AWS projects",
+  "license": "MPL-2.0",
+  "repository": "shellscape/dot",
+  "author": "shellscape",
+  "homepage": "https://github.com/shellscape/dot",
+  "bugs": "https://github.com/shellscape/dot/issues",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm -w package:build $PWD",
+    "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
+    "pretest": "pnpm build",
+    "test": "ava --timeout=2m"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "aws-sdk": "^2.1226.0"
+  },
+  "dependencies": {
+    "@dot/log": "workspace:*",
+    "chalk": "^4.1.0",
+    "mem": "^8.0.0"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.256.0",
+    "@aws-sdk/client-ssm": "^3.256.0",
+    "aws-sdk": "^2.1300.0",
+    "aws-sdk-client-mock": "^2.0.1",
+    "aws-sdk-mock": "^5.8.0"
+  }
+}

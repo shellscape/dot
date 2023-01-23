@@ -1,0 +1,74 @@
+name: Validate Monorepo
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - edited
+      - opened
+      - synchronize
+  push:
+    branches:
+      - '*'
+      - '!master'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate
+
+    steps:
+      - name: Checkout Commit
+        uses: actions/checkout@v1
+
+      - name: Checkout Master
+        run: git branch -f master origin/master
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Enable Corepack
+        id: pnpm-setup
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm config set script-shell "/usr/bin/bash"
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+
+      - name: pnpm Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-setup.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: ESLint Cache
+        uses: actions/cache@v3
+        with:
+          path: ./.eslintcache
+          key: ${{ runner.os }}-eslintcache-${{ hashFiles('./eslintcache') }}
+          restore-keys: |
+            ${{ runner.os }}-eslintcache-
+
+      - name: Sanity Check
+        run: |
+          echo git `git version`;
+          echo branch `git branch --show-current`;
+          echo node `node -v`;
+          echo pnpm `pnpm -v`
+          echo python `python --version`
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Packages
+        run: pnpm -r build
+
+      - name: Lint Monorepo
+        run: pnpm lint
+
+      - name: Run Tests
+        run: pnpm --filter "...[origin/master]" test

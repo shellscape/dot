@@ -1,0 +1,35 @@
+{
+  "name": "@dot/log",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A beautiful and minimal logger for all applications",
+  "license": "MPL-2.0",
+  "repository": "shellscape/dot",
+  "author": "shellscape",
+  "homepage": "https://github.com/shellscape/dot",
+  "bugs": "https://github.com/shellscape/dot/issues",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm -w package:build $PWD",
+    "coverage": "nyc pnpm run test && nyc report --reporter=text-lcov > coverage.lcov",
+    "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
+    "prerelease": "pnpm build",
+    "pretest": "pnpm build",
+    "release": "pnpm --workspace-root package:release $npm_package_name",
+    "test": "FORCE_COLOR=2 ava"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "loglevelnext": "^5.0.6",
+    "p-defer": "^3.0.0"
+  }
+}
