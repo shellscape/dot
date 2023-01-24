@@ -1,44 +1,44 @@
 {
-  "name": "@dot/config",
+  "name": "@dot/versioner",
   "version": "0.0.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "A configuration contract for Node + AWS projects",
+  "description": "A versioning, changelog, and release tool",
   "license": "MPL-2.0",
   "repository": "shellscape/dot",
   "author": "shellscape",
   "homepage": "https://github.com/shellscape/dot",
   "bugs": "https://github.com/shellscape/dot/issues",
-  "main": "dist/index.js",
+  "bin": {
+    "versioner": "bin/versioner"
+  },
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm -w package:build $PWD",
+    "build": "tsc --project ./tsconfig.json",
     "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
     "prerelease": "pnpm build",
-    "pretest": "pnpm build",
-    "release": "pnpm --workspace-root package:release $npm_package_name",
-    "test": "ava --timeout=2m"
+    "release": "pnpm --workspace-root package:release $npm_package_name"
   },
   "files": [
+    "bin",
     "dist",
     "README.md"
   ],
-  "peerDependencies": {
-    "aws-sdk": "^2.1226.0"
-  },
   "dependencies": {
     "@dot/log": "workspace:*",
     "chalk": "^4.1.0",
-    "mem": "^8.0.0"
+    "conventional-commits-parser": "^3.2.1",
+    "execa": "^5.0.0",
+    "semver": "^7.3.4",
+    "write-pkg": "^4.0.0",
+    "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.256.0",
-    "@aws-sdk/client-ssm": "^3.256.0",
-    "aws-sdk": "^2.1300.0",
-    "aws-sdk-client-mock": "^2.0.1",
-    "aws-sdk-mock": "^5.8.0"
+    "@types/conventional-commits-parser": "^3.0.1",
+    "@types/semver": "^7.3.4",
+    "@types/yargs-parser": "^21.0.0"
   }
 }

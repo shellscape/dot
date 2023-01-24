@@ -1,10 +1,10 @@
 {
-  "name": "@dot/config",
+  "name": "@dot/env",
   "version": "0.0.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "A configuration contract for Node + AWS projects",
+  "description": "Load environment variables from .env files",
   "license": "MPL-2.0",
   "repository": "shellscape/dot",
   "author": "shellscape",
@@ -19,26 +19,16 @@
     "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
     "prerelease": "pnpm build",
     "pretest": "pnpm build",
-    "release": "pnpm --workspace-root package:release $npm_package_name",
-    "test": "ava --timeout=2m"
+    "release": "pnpm --workspace-root package:release $npm_package_name"
   },
   "files": [
     "dist",
     "README.md"
   ],
-  "peerDependencies": {
-    "aws-sdk": "^2.1226.0"
-  },
   "dependencies": {
     "@dot/log": "workspace:*",
-    "chalk": "^4.1.0",
-    "mem": "^8.0.0"
-  },
-  "devDependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.256.0",
-    "@aws-sdk/client-ssm": "^3.256.0",
-    "aws-sdk": "^2.1300.0",
-    "aws-sdk-client-mock": "^2.0.1",
-    "aws-sdk-mock": "^5.8.0"
+    "dotenv": "^16.0.3",
+    "dotenv-expand": "^10.0.0",
+    "find-up": "5.0.0"
   }
 }

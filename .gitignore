@@ -1,6 +1,7 @@
 coverage*
 dist
 node_modules
+.cleanmodules
 .DS_Store
 .eslintcache
 .pnpm-debug.log
