@@ -1,6 +1,12 @@
 # @dot/cdk ChangeLog
 
-## v0.1.0
+## v0.1.2
+
+_2023-01-24_
+
+Bumps @dot/env dependency
+
+## v0.1.1
 
 _2023-01-24_
 
