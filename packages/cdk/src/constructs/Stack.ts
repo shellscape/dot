@@ -18,7 +18,7 @@ if (!DEPLOY_ENV) {
   process.exit(1);
 }
 
-log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}\n}}`);
+log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}\n}}}`);
 
 export class DotStack extends Stack {
   public readonly app: App;
