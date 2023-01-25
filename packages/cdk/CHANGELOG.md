@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v0.1.3
+
+_2023-01-24_
+
+### Bugfixes
+
+- fix: fix chalk curly boundary (6763463e)
+
 ## v0.1.2
 
 _2023-01-24_
