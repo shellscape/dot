@@ -5,8 +5,8 @@ import find from 'find-up';
 
 const log = getLog({ name: '/env' });
 
-(async () => {
-  const path = await find('.env');
+(() => {
+  const path = find.sync('.env');
 
   if (!path) {
     log.debug('No .env file found, skipping .env load');
