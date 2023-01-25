@@ -6,7 +6,7 @@ This package bstracts the class-based CDK library with a functional approach tha
 
 ## Requirements
 
-This module requires an [Active LTS](https://github.com/nodejs/Release) Node version (v18+).
+This package requires an [Active LTS](https://github.com/nodejs/Release) Node version (v18+).
 
 ## A Note on Documentation
 

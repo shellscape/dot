@@ -4,7 +4,7 @@ A beautiful and minimal logger for all applications
 
 ## Requirements
 
-This module requires an [Active LTS](https://github.com/nodejs/Release) Node version (v18+).
+This package requires an [Active LTS](https://github.com/nodejs/Release) Node version (v18+).
 
 ## Install
 

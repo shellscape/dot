@@ -1,6 +1,6 @@
 {
   "name": "@dot/versioner",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -17,7 +17,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc --project ./tsconfig.json",
+    "build": "pnpm -w package:build $PWD",
     "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
     "prerelease": "pnpm build",
     "release": "pnpm --workspace-root package:release $npm_package_name"

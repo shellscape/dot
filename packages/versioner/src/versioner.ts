@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 import { getLog } from '@dot/log';
@@ -9,13 +9,14 @@ import semver from 'semver';
 import writePackage from 'write-pkg';
 import yargs from 'yargs-parser';
 
+const argv = yargs(process.argv.slice(2));
 const log = getLog({ name: '/repo' });
 const parserOptions = {
   noteKeywords: ['BREAKING CHANGE', 'Breaking Change']
 };
 const reBreaking = new RegExp(`(${parserOptions.noteKeywords.join(')|(')})`);
+// FIXME: use argv from above here
 const dryRun = process.argv.includes('--dry');
-const isPackage = !process.argv.includes('--no-package');
 const noPublish = process.argv.includes('--no-publish');
 const noPush = process.argv.includes('--no-push');
 const noTag = process.argv.includes('--no-tag');
@@ -47,17 +48,16 @@ const commitChanges = async (cwd: string, shortName: string, version: string) =>
 
   log.info(chalk`{blue Committing} CHANGELOG.md, package.json`);
   let params = ['add', cwd];
-  const name = isPackage ? `${shortName} ` : '';
   await execa('git', params);
 
-  params = ['commit', '--m', `chore(release): ${name}v${version}`];
+  params = ['commit', '--m', `chore(release): ${shortName} v${version}`];
   await execa('git', params);
 };
 
 const getCommits = async (shortName: string, stripScope: string[]) => {
   log.info(chalk`{blue Gathering Commits}`);
 
-  const tagPattern = isPackage ? `${shortName}-v*` : `v*`;
+  const tagPattern = `${shortName}-v*`;
   let params = ['tag', '--list', tagPattern, '--sort', '-v:refname'];
 
   const { stdout: tags } = await execa('git', params);
@@ -80,7 +80,7 @@ const getCommits = async (shortName: string, stripScope: string[]) => {
     .split('🐒💨🙊')
     .filter((commit: string) => {
       const chunk = commit.trim();
-      return chunk && (!isPackage || rePlugin.test(chunk));
+      return chunk && rePlugin.test(chunk);
     })
     .map((commit) => {
       const node = parser.sync(commit, {
@@ -157,7 +157,7 @@ const tag = async (cwd: string, shortName: string, version: string) => {
     return;
   }
 
-  const prefix = isPackage ? `${shortName}-` : '';
+  const prefix = `${shortName}-`;
   const tagName = `${prefix}v${version}`;
   log.info(chalk`\n{blue Tagging} {grey ${tagName}}`);
   await execa('git', ['tag', tagName], { cwd, stdio: 'inherit' });
@@ -166,13 +166,13 @@ const tag = async (cwd: string, shortName: string, version: string) => {
 const updateChangelog = (
   commits: Commit[],
   cwd: string,
-  packageName: string,
+  targetName: string,
   shortName: string,
   version: string
 ) => {
   log.info(chalk`{blue Gathering Changes}`);
 
-  const title = `# ${packageName} ChangeLog`;
+  const title = `# ${targetName} ChangeLog`;
   const [date] = new Date().toISOString().split('T');
   const logPath = join(cwd, 'CHANGELOG.md');
   const logFile = existsSync(logPath) ? readFileSync(logPath, 'utf-8') : '';
@@ -230,15 +230,14 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
 
 (async () => {
   try {
-    const argv = yargs(process.argv.slice(2));
-    const packagePath = argv.packagePath || (isPackage ? 'packages' : '');
+    const cwd = argv.target;
     const stripScope = argv.stripScope?.split(',') || [];
-    const [packageName] = argv._ as string[];
-    const shortName = packageName.replace(/^@.+\//, '');
-    const cwd = join(process.cwd(), `/${packagePath}/`, isPackage ? shortName : '');
+    const { name: targetName } = await import(join(cwd, 'package.json'));
+    const shortName = targetName.replace(/^@.+\//, '');
+    const parentDirName = dirname(resolve(cwd, '..'));
 
     if (!cwd || !existsSync(cwd)) {
-      throw new RangeError(`Could not find directory for package: ${packageName} → ${cwd}`);
+      throw new RangeError(`Could not find directory for package: ${targetName} → ${cwd}`);
     }
 
     const { default: pkg }: RepoPackage = await import(join(cwd, 'package.json'));
@@ -247,13 +246,13 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
       log.warn(chalk`{magenta DRY RUN}: No files will be modified`);
     }
 
-    const from = isPackage ? chalk` from {grey packages/${shortName}}` : '';
-    log.info(chalk`{cyan Releasing \`${packageName}\`}${from}\n`);
+    const from = chalk` from {grey ${parentDirName}/${targetName}}`;
+    log.info(chalk`{cyan Releasing \`${targetName}\`}${from}\n`);
 
     const commits = await getCommits(shortName, stripScope);
 
     if (!commits.length) {
-      log.info(chalk`\n{red No Commits Found}. Did you mean to publish ${packageName}?`);
+      log.info(chalk`\n{red No Commits Found}. Did you mean to publish ${targetName}?`);
       return;
     }
 
@@ -264,7 +263,7 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
     log.info(chalk`{blue New Version}: ${newVersion}\n`);
 
     await updatePackage(cwd, pkg, newVersion);
-    updateChangelog(commits, cwd, packageName, shortName, newVersion);
+    updateChangelog(commits, cwd, targetName, shortName, newVersion);
     await commitChanges(cwd, shortName, newVersion);
     await publish(cwd);
     await tag(cwd, shortName, newVersion);
