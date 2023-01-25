@@ -17,6 +17,7 @@
   "scripts": {
     "build": "pnpm -w package:build $PWD",
     "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
+    "prepublishOnly": "pnpm build",
     "prerelease": "pnpm build",
     "pretest": "pnpm build",
     "release": "pnpm --workspace-root package:release $npm_package_name"

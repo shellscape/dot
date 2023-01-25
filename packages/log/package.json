@@ -18,6 +18,7 @@
     "build": "pnpm -w package:build $PWD",
     "coverage": "nyc pnpm run test && nyc report --reporter=text-lcov > coverage.lcov",
     "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
+    "prepublishOnly": "pnpm build",
     "prerelease": "pnpm build",
     "pretest": "pnpm build",
     "release": "pnpm --workspace-root package:release $npm_package_name",

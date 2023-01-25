@@ -1,5 +1,11 @@
 # @dot/env ChangeLog
 
+## v0.1.2
+
+_2023-01-24_
+
+Corrects bad build on publish
+
 ## v0.1.1
 
 _2023-01-24_
