@@ -9,11 +9,11 @@ import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { DotStack } from '../constructs/Stack';
 
 export interface AddStepFunctionOptions {
-  definitionString?: string;
   definitionFile?: string;
+  definitionString?: string;
+  logRetention?: RetentionDays;
   name?: string;
   scope: DotStack;
-  logRetention?: RetentionDays;
 }
 
 /**
@@ -58,8 +58,8 @@ export const addStepFunction = (options: AddStepFunctionOptions) => {
   const stateMachine = new StateMachine(scope, fnName, {
     definition: new Pass(scope, 'StartState'),
     logs: {
-      level: LogLevel.ALL,
-      destination: logGroup
+      destination: logGroup,
+      level: LogLevel.ALL
     }
   });
   const cfnStateMachine = stateMachine.node.defaultChild as CfnStateMachine;

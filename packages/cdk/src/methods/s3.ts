@@ -28,14 +28,18 @@ export interface AddBucketOptions {
   expireAfterDays?: number;
   handlers?: BucketEventHandlerOptions[];
   name: string;
-  publicObjects?: boolean;
+  publicReadAccess?: boolean;
   removalPolicy?: RemovalPolicy;
   scope: DotStack;
+  /*
+   * If true, enables static website hosting for the bucket. An `index.html` file must exist within the bucket contents.
+   */
+  staticHosting?: boolean;
 }
 
 interface AddBucketResult {
   bucket: Bucket;
-  params: { nameParam: StringParameter; arnParam: StringParameter };
+  params: { arnParam: StringParameter; nameParam: StringParameter };
 }
 
 interface GrantFullBucketAccessOptions {
@@ -44,12 +48,21 @@ interface GrantFullBucketAccessOptions {
 }
 
 export const addBucket = (options: AddBucketOptions): AddBucketResult => {
-  const { autoDelete = true, expireAfterDays, handlers, name, publicObjects, scope } = options;
+  const {
+    autoDelete = true,
+    expireAfterDays,
+    handlers,
+    name,
+    publicReadAccess,
+    staticHosting,
+    scope
+  } = options;
   let { removalPolicy = RemovalPolicy.RETAIN } = options;
 
   const baseName = DotStack.baseName(name, 'bucket');
   const bucketName = `${scope.appName}-${baseName}`;
   const lifeCycleRules = [];
+  const websiteIndexDocument = staticHosting ? 'index.html' : void 0;
 
   if (expireAfterDays && expireAfterDays > 0) {
     lifeCycleRules.push({
@@ -64,20 +77,22 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   const bucketProps: BucketProps = {
     autoDeleteObjects: autoDelete,
     bucketName,
-    removalPolicy
+    publicReadAccess,
+    removalPolicy,
+    websiteIndexDocument
   };
 
   const bucket = new Bucket(scope, bucketName, bucketProps);
 
   scope.overrideId(bucket, bucketName);
 
-  if (publicObjects) bucket.grantPublicAccess(void 0, 's3:GetObject');
+  if (publicReadAccess) bucket.grantPublicAccess(void 0, 's3:GetObject');
 
   const nameParam = addParam({
     id: `${bucketName}-name`,
     name: `${scope.ssmPrefix}/name/${baseName}`,
-    value: bucket.bucketName,
-    scope
+    scope,
+    value: bucket.bucketName
   });
 
   const arnParam = addParam({
@@ -109,7 +124,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     });
   }
 
-  return { bucket, params: { nameParam, arnParam } };
+  return { bucket, params: { arnParam, nameParam } };
 };
 
 export const grantFullBucketAccess = async ({

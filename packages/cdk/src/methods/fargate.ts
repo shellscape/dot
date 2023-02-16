@@ -31,20 +31,19 @@ interface AddServiceOptions {
   baseDir: string;
   certificateArn: string;
   cpu?: ServiceCPUUnits;
-  environmentVariables: Record<string, string>;
+  cpuScaleAtPercent: MinMaxNumber<10, 90>;
   desiredInstances?: MinMaxNumber<1, 10>;
+  environmentVariables: Record<string, string>;
   maxInstances?: MinMaxNumber<1, 10>;
   memory?: ServiceMemoryLimit;
   minInstances?: MinMaxNumber<1, 10>;
   name?: string;
-  cpuScaleAtPercent: MinMaxNumber<10, 90>;
   scope: DotStack;
 }
 
 export interface AddServiceResult {
   task: FargateTaskDefinition;
 }
-
 
 export const addFargateService = (options: AddServiceOptions): AddServiceResult => {
   const {
@@ -90,8 +89,8 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
         },
         image: ContainerImage.fromDockerImageAsset(asset),
         logDriver: LogDriver.awsLogs({
-          streamPrefix: serviceName,
-          logRetention: RetentionDays.ONE_WEEK
+          logRetention: RetentionDays.ONE_WEEK,
+          streamPrefix: serviceName
         })
       }
     });
@@ -131,10 +130,10 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   // from the LoadBalancer, we get an error about our Stack and needing to hardcode the accountId
   const securityGroup = addSecurityGroup({
     allowAllOutbound: true,
+    egressRules: [{ connection: Port.tcp(443), peer: Peer.ipv4(vpc.vpcCidrBlock) }],
     id: `${serviceName}-sg`,
     scope,
-    vpc,
-    egressRules: [{ peer: Peer.ipv4(vpc.vpcCidrBlock), connection: Port.tcp(443) }]
+    vpc
   });
   const securityGroups = [securityGroup];
 
@@ -142,23 +141,23 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   // permissions
 
   vpc.addInterfaceEndpoint(`${serviceName}-secrets-iface`, {
-    service: InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
-    securityGroups
+    securityGroups,
+    service: InterfaceVpcEndpointAwsService.SECRETS_MANAGER
   });
 
   vpc.addInterfaceEndpoint(`${serviceName}-sns-iface`, {
-    service: InterfaceVpcEndpointAwsService.SNS,
-    securityGroups
+    securityGroups,
+    service: InterfaceVpcEndpointAwsService.SNS
   });
 
   vpc.addInterfaceEndpoint(`${serviceName}-sqs-iface`, {
-    service: InterfaceVpcEndpointAwsService.SQS,
-    securityGroups
+    securityGroups,
+    service: InterfaceVpcEndpointAwsService.SQS
   });
 
   vpc.addInterfaceEndpoint(`${serviceName}-ssm-iface`, {
-    service: InterfaceVpcEndpointAwsService.SSM,
-    securityGroups
+    securityGroups,
+    service: InterfaceVpcEndpointAwsService.SSM
   });
 
   return {

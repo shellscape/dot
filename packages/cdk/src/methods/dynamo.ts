@@ -28,8 +28,8 @@ interface AddTableOptions {
 interface AddGlobalIndexOptions {
   indexName: string;
   partitionKey: Attribute;
-  projectionType: ProjectionType;
   projectionKeys?: string[];
+  projectionType: ProjectionType;
 }
 
 export { Attribute, AttributeType } from 'aws-cdk-lib/aws-dynamodb';

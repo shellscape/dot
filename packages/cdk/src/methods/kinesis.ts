@@ -30,9 +30,9 @@ interface AddStreamResult {
 }
 
 interface AddFirehoseOptions {
+  destinationBucket?: Bucket | Omit<AddBucketOptions, 'name' | 'scope'>;
   // conversion?: DataFormatConversion;
   destinations?: IDestination[];
-  destinationBucket?: Bucket | Omit<AddBucketOptions, 'name' | 'scope'>;
   name: string;
   scope: DotStack;
   source: Stream | Omit<AddStreamOptions, 'name' | 'scope'>;

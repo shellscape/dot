@@ -31,8 +31,8 @@ interface AddTopicSubscriptionOptions {
 }
 
 interface AddQueueSubscriptionOptions {
-  topic: Topic;
   queue: Queue;
+  topic: Topic;
 }
 
 interface AddTopicSubscriptionResult {
@@ -71,7 +71,7 @@ export const addTopic = (options: AddTopicOptions) => {
     value: topic.topicArn
   });
 
-  return { topic, handler: topicHandler, arnParam };
+  return { arnParam, handler: topicHandler, topic };
 };
 
 export const addTopicSubscription = (

@@ -6,8 +6,8 @@ import { DotStack } from '../constructs/Stack';
 interface BackupOptions {
   arns?: string[];
   name: string;
-  tables?: Table[];
   scope: DotStack;
+  tables?: Table[];
 }
 
 /**

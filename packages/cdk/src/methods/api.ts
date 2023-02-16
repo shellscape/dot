@@ -33,8 +33,8 @@ type ApiVerb = 'DELETE' | 'GET' | 'POST' | 'PUT' | 'OPTIONS';
 interface AddApiOptions {
   authorization?: Omit<AddAuthorizerOptions, 'scope'>;
   cors?: boolean;
-  domain?: ApiDomainOptions;
   deployEnv?: 'prod' | 'stage' | 'dev' | 'test';
+  domain?: ApiDomainOptions;
   handler: Omit<AddNodeFunctionOptions, 'scope'> | Function;
   name?: string;
   paths?: string[];

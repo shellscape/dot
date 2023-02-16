@@ -18,26 +18,26 @@ export interface AddFunctionOptions {
   deadLetterQueue?: boolean;
   environmentVariables?: { [key: string]: string };
   handlerPath?: string;
-  layers?: LayerVersion[];
   layerArns?: string[];
+  layers?: LayerVersion[];
   memorySize?: number;
   name?: string;
   scope: DotStack;
-  storageMb?: number;
   sourcePath: string;
+  storageMb?: number;
   timeout?: Duration;
 }
 
 export interface FunctionConcurrencyOptions {
-  reserved?: number;
   provisioned?: {
-    min?: number;
     max: number;
+    min?: number;
     /**
      * Begin scaling when the number of concurrent executions exceeds a percentage of `max`
      */
     percentage?: number;
   };
+  reserved?: number;
 }
 
 interface GrantRemoteOptions {
@@ -59,7 +59,15 @@ interface SetupFunctionArgs {
 const FN_TIMEOUT = Duration.minutes(5);
 
 export const setupFunction = ({ fnName, handler, options }: SetupFunctionArgs) => {
-  const { addEnvars, alarmEmail, concurrency, environmentVariables = {}, layers, layerArns, scope } = options;
+  const {
+    addEnvars,
+    alarmEmail,
+    concurrency,
+    environmentVariables = {},
+    layers,
+    layerArns,
+    scope
+  } = options;
 
   if (concurrency?.provisioned) {
     log.info(' - Provisioning Concurrency for:', chalk.dim(fnName));
@@ -70,8 +78,8 @@ export const setupFunction = ({ fnName, handler, options }: SetupFunctionArgs) =
     const aliasName = `${fnName}-alias`;
     const alias = new Alias(scope, aliasName, { aliasName, version: handler.latestVersion });
     const scaling = alias.addAutoScaling({
-      minCapacity: Math.ceil(concurrency.provisioned.min || 1),
-      maxCapacity: Math.ceil(concurrency.provisioned.max)
+      maxCapacity: Math.ceil(concurrency.provisioned.max),
+      minCapacity: Math.ceil(concurrency.provisioned.min || 1)
     });
 
     scaling.scaleOnUtilization({ utilizationTarget: concurrency.provisioned.percentage || 0.5 });

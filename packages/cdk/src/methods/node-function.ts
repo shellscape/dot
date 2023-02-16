@@ -57,8 +57,8 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
       sourceMapMode: SourceMapMode.INLINE,
       sourcesContent: false
     },
-    entry: entryFilePath,
     deadLetterQueueEnabled: deadLetterQueue,
+    entry: entryFilePath,
     environment: { ...defaultEnv, ...environmentVariables },
     ephemeralStorageSize: storageMb ? Size.mebibytes(storageMb) : void 0,
     functionName: fnName,

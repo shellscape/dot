@@ -17,10 +17,10 @@ interface CfnNagSuppressRule {
 }
 
 interface SecurityGroupRuleDefinition {
-  // example: ec2.Peer.ipV4(vpc.vpcCiderBlock)
-  readonly peer: IPeer;
   readonly connection: Port;
   readonly description?: string;
+  // example: ec2.Peer.ipV4(vpc.vpcCiderBlock)
+  readonly peer: IPeer;
   readonly remoteRule?: boolean;
 }
 
