@@ -73,6 +73,10 @@ const { sourceStream } = addFirehose({
 sourceStream.grantWrite(handler);
 ```
 
+## AWS Region
+
+By default, the AWS Region is set to `us-east-1`. To change the region for a deployment, set the `DOT_AWS_REGION` environment variable to your preferred region. This allows for the same deployment to affect multiple regions based on the envrionment the deployment is running within.
+
 ## Meta
 
 [CONTRIBUTING](../.github/CONTRIBUTING.md)

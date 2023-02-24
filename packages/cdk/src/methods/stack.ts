@@ -6,5 +6,4 @@ interface StackOptions extends DotStackProps {
   app: App;
 }
 
-export const addStack = (options: StackOptions) =>
-  new DotStack(options.app, { env: { region: 'us-east-1' }, ...options });
+export const addStack = (options: StackOptions) => new DotStack(options.app, options);

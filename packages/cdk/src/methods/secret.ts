@@ -43,8 +43,8 @@ export const grantRemoteSecret = ({
   return secret.secretArn;
 };
 
-export const secretExists = async (name: string): Promise<boolean> => {
-  const sm = new SecretsManager({ region: 'us-east-1' });
+export const secretExists = async (name: string, region: string): Promise<boolean> => {
+  const sm = new SecretsManager({ region });
 
   const response = await sm
     .listSecrets({ Filters: [{ Key: 'name', Values: [name] }], MaxResults: 1 })

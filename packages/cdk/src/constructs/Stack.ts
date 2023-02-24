@@ -10,7 +10,7 @@ export interface DotStackProps extends StackProps {
   name: string;
 }
 
-const { DEPLOY_ENV } = process.env;
+const { DEPLOY_ENV, DOT_AWS_REGION = 'us-east-1' } = process.env;
 const log = getLog({ name: '/cdk' });
 
 if (!DEPLOY_ENV) {
@@ -19,6 +19,7 @@ if (!DEPLOY_ENV) {
 }
 
 log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}\n}}}`);
+log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${DOT_AWS_REGION}\n}}}`);
 
 export class DotStack extends Stack {
   public readonly app: App;
@@ -26,13 +27,15 @@ export class DotStack extends Stack {
   public readonly env: DeployEnvironment;
   public readonly envPrefix: string;
   public readonly ssmPrefix: string;
+  public readonly awsRegion = DOT_AWS_REGION;
 
   constructor(scope: App, props: DotStackProps) {
     const stackName = props.name.replace(/-stack$/, '');
     const env = DEPLOY_ENV as DeployEnvironment;
     const envPrefix = `${env}-`;
+    const stackEnv = { ...(props.env || {}), region: DOT_AWS_REGION };
 
-    super(scope, `${envPrefix}${stackName}-stack`, props);
+    super(scope, `${envPrefix}${stackName}-stack`, { ...props, env: stackEnv });
 
     this.app = scope;
     this.appName = envPrefix + (props.appName || props.name);

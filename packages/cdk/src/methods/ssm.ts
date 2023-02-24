@@ -6,8 +6,8 @@ import SSM from 'aws-sdk/clients/ssm';
 
 import { DotStack } from '../constructs/Stack';
 
-export const paramExists = async (name: string): Promise<boolean> => {
-  const ssm = new SSM({ region: 'us-east-1' });
+export const paramExists = async (name: string, region: string): Promise<boolean> => {
+  const ssm = new SSM({ region });
   try {
     const param = await ssm.getParameter({ Name: name }).promise();
     return param.Parameter?.Value != null;

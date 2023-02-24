@@ -112,7 +112,7 @@ export const grantRemoteTopic = async ({
   if ((!topicArn && !topicName) || (topicArn && topicName)) {
     throw new RangeError(`grantRemoteTopic requires either topicArn or topicName parameter`);
   }
-  const theTopicArn = topicArn || (await lookupTopicArn(topicName!));
+  const theTopicArn = topicArn || (await lookupTopicArn(topicName!, scope.awsRegion));
   if (!theTopicArn) {
     throw new Error(`Cannot lookup TopicArn for the SNS Topic with name ${topicName}`);
   }
@@ -122,8 +122,8 @@ export const grantRemoteTopic = async ({
   return theTopicArn;
 };
 
-const lookupTopicArn = async (topicName: string) => {
-  const sns = new SNS({ apiVersion: '2010-03-31', region: 'us-east-1' });
+const lookupTopicArn = async (topicName: string, region: string) => {
+  const sns = new SNS({ apiVersion: '2010-03-31', region });
   const { TopicArn } = await sns.createTopic({ Name: topicName }).promise();
   return TopicArn;
 };
