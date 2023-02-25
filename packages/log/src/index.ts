@@ -41,7 +41,7 @@ const defaults: LogOptions = {
 export const getLog = (opts?: LogOptions) => {
   const options = Object.assign({}, defaults, opts);
   const logName = options.name ? `${options.name} ` : '';
-  const brand = options.brand ? chalk` {blue ${options.brand}} ` : '';
+  const brand = options.brand ? chalk` {blue ${options.brand}} ` : ' ';
   const template = `[{{time}}]${brand}${logName}{{level}} `;
   const factory = new LogFactory({
     level: ({ level }: { level: string }) => colors[level],

@@ -43,8 +43,6 @@ test.serial('logging', async (t) => {
 });
 
 test.serial('nothing logged', async (t) => {
-  t.is((console.info as sinon.SinonSpy).callCount, 0);
-
   const { getLog } = await import('..');
   const log = getLog();
   const reTime = /\[\d\d:\d\d:\d\d\]/;
@@ -58,11 +56,23 @@ test.serial('nothing logged', async (t) => {
   t.snapshot(arg.replace(reTime, '<timestamp>'));
 });
 
-test.serial('name option', async (t) => {
-  t.is((console.info as sinon.SinonSpy).callCount, 0);
-
+test.serial('brand option', async (t) => {
   const { getLog } = await import('..');
-  const log = getLog({ name: 'batman' });
+  const log = getLog({ brand: '@dot', name: 'batman' });
+  const reTime = /\[\d\d:\d\d:\d\d\]/;
+
+  log.info('joker');
+
+  const [arg] = (console.info as sinon.SinonSpy).getCall(0).args;
+
+  t.truthy(arg);
+  t.regex(arg, reTime);
+  t.snapshot(arg.replace(reTime, '<timestamp>'));
+});
+
+test.serial('name option', async (t) => {
+  const { getLog } = await import('..');
+  const log = getLog({ name: 'robin' });
   const reTime = /\[\d\d:\d\d:\d\d\]/;
 
   log.info('joker');
