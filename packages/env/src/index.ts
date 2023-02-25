@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { expand } from 'dotenv-expand';
 import find from 'find-up';
 
-const log = getLog({ name: '/env' });
+const log = getLog({ brand: '@dot', name: '\u001b[1D/env' });
 
 (() => {
   const path = find.sync('.env');
