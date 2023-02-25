@@ -2,12 +2,12 @@ import { Size, Duration } from 'aws-cdk-lib';
 import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { BundlingOptions, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { log } from '@dot/log';
 import chalk from 'chalk';
 
 // FIXME: reconcile this file with function.ts
 
 import { DotStack } from '../constructs/Stack';
+import { log } from '../log';
 
 import { setupFunction, AddFunctionOptions } from './function';
 

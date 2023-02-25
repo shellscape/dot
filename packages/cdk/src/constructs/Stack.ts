@@ -1,7 +1,8 @@
 import { App, CfnResource, Resource, Stack, StackProps } from 'aws-cdk-lib';
-import { getLog } from '@dot/log';
 import camelcase from 'camelcase';
 import chalk from 'chalk';
+
+import { log } from '../log';
 
 export type DeployEnvironment = 'dev' | 'prod' | 'stage' | 'test';
 
@@ -11,7 +12,6 @@ export interface DotStackProps extends StackProps {
 }
 
 const { DEPLOY_ENV, DOT_AWS_REGION = 'us-east-1' } = process.env;
-const log = getLog({ name: '/cdk' });
 
 if (!DEPLOY_ENV) {
   log.error(chalk`{bold DEPLOY_ENV is {red not set}. Please set DEPLOY_ENV before proceeding}`);

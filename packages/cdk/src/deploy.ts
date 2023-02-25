@@ -3,13 +3,12 @@ import '@dot/env';
 
 import { join } from 'path';
 
-import { getLog } from '@dot/log';
 import chalk from 'chalk';
 import yargs from 'yargs-parser';
 
+import { log } from './log';
 import { addApp, App } from './methods';
 
-const log = getLog({ name: '/cdk' });
 const argv = yargs(process.argv.slice(2));
 const { target }: { target: string } = argv as any;
 const app = addApp();

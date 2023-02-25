@@ -1,11 +1,10 @@
 import { readFileSync } from 'fs';
 
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { CfnStateMachine, LogLevel, Pass, StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
-import { log } from '@dot/log';
 import chalk from 'chalk';
 
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
-
+import { log } from '../log';
 import { DotStack } from '../constructs/Stack';
 
 export interface AddStepFunctionOptions {

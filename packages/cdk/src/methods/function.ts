@@ -4,10 +4,11 @@ import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Alias, Function, LayerVersion } from 'aws-cdk-lib/aws-lambda';
 import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { ArnFormat, Duration } from 'aws-cdk-lib';
-import { log } from '@dot/log';
+
 import chalk from 'chalk';
 
 import { DotStack } from '../constructs/Stack';
+import { log } from '../log';
 
 import { addTopic } from './sns';
 
