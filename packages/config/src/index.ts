@@ -20,7 +20,7 @@ export enum DotEnv {
   TEST = 'test'
 }
 
-const log = getLog({ name: '/config' });
+const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
 const { DEPLOY_ENV, NODE_ENV } = process.env;
 const deployEnv = DEPLOY_ENV || NODE_ENV;
 
