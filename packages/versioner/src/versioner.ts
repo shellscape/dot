@@ -10,7 +10,7 @@ import writePackage from 'write-pkg';
 import yargs from 'yargs-parser';
 
 const argv = yargs(process.argv.slice(2));
-const log = getLog({ name: '/repo' });
+const log = getLog({ brand: '@dot', name: '\u001b[1D/repo' });
 const parserOptions = {
   noteKeywords: ['BREAKING CHANGE', 'Breaking Change']
 };
