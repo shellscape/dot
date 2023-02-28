@@ -1,7 +1,7 @@
 import { getLog } from '@dot/log';
 import { SSM, SecretsManager } from 'aws-sdk';
 
-const log = getLog({ name: '/config' });
+const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
 const ssm = new SSM({ region: 'us-east-1' });
 const secrets = new SecretsManager({ region: 'us-east-1' });
 
