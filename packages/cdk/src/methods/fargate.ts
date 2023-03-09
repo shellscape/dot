@@ -38,6 +38,7 @@ interface AddServiceOptions {
   memory?: ServiceMemoryLimit;
   minInstances?: MinMaxNumber<1, 10>;
   name?: string;
+  nodeMemorySize?: number;
   scope: DotStack;
 }
 
@@ -57,6 +58,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     memory = ServiceMemoryLimit.HALF_GB,
     minInstances = 1,
     name = '',
+    nodeMemorySize = 2000,
     scope
   } = options;
   const { env } = scope;
@@ -82,9 +84,12 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
       taskImageOptions: {
         containerPort: 80,
         environment: {
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
           DEPLOY_ENV: env,
+          DOT_AWS_REGION: 'us-east-1',
           IS_FARGATE: 'true',
           NODE_ENV: env,
+          NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${nodeMemorySize}`,
           ...environmentVariables
         },
         image: ContainerImage.fromDockerImageAsset(asset),

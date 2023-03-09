@@ -18,7 +18,7 @@ if (!DEPLOY_ENV) {
   process.exit(1);
 }
 
-log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}\n}}}`);
+log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}}}}`);
 log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${DOT_AWS_REGION}\n}}}`);
 
 export class DotStack extends Stack {
