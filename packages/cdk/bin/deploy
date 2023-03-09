@@ -1,2 +1,2 @@
-#!/usr/bin/env npx ts-node --swc
+#!/usr/bin/env node
 require('../dist/deploy.js');
