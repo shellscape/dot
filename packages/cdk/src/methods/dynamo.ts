@@ -7,6 +7,7 @@ import {
   Table
 } from 'aws-cdk-lib/aws-dynamodb';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
+import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
 
@@ -30,6 +31,12 @@ interface AddGlobalIndexOptions {
   partitionKey: Attribute;
   projectionKeys?: string[];
   projectionType: ProjectionType;
+}
+
+interface GrantRemoteOptions {
+  consumers: IGrantable[];
+  scope: DotStack;
+  tableName: string;
 }
 
 export { Attribute, AttributeType } from 'aws-cdk-lib/aws-dynamodb';
@@ -70,4 +77,12 @@ export const addGlobalIndex = async (table: Table, props: AddGlobalIndexOptions)
     ...props
   };
   table.addGlobalSecondaryIndex(indexProps);
+};
+
+export const grantRemoteTable = ({ consumers, tableName, scope }: GrantRemoteOptions) => {
+  const table = Table.fromTableName(scope, `${nanoid()}-grantRemoteTable`, tableName);
+
+  consumers.forEach((resource) => {
+    table.grantReadWriteData(resource);
+  });
 };
