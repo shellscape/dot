@@ -43,7 +43,7 @@ const value = await get('BATCAVE_CODE');
 
 ## AWS Region
 
-By default, the AWS Region is set to `us-east-1`. To change the region for fetching secrets or SSM parameters, set the `DOT_AWS_REGION` environment variable to your preferred region. This allows for the same code to pull from multiple regions based on the envrionment the app is running within.
+By default, the AWS Region that SSM and Secrets Manager use is `undefined` and will default to the local AWS Configuration. To change the region for fetching secrets or SSM parameters, set the `AWS_REGION` [environment variable](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-region.html). The region can also be overridden with the `DOT_AWS_REGION` environment variable, should there be a need.
 
 ## Exports
 

@@ -1,7 +1,7 @@
 import { getLog } from '@dot/log';
 import { SSM, SecretsManager } from 'aws-sdk';
 
-const { DOT_AWS_REGION: region = 'us-east-1' } = process.env;
+const { DOT_AWS_REGION: region } = process.env;
 
 const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
 const ssm = new SSM({ region });
