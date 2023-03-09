@@ -1,9 +1,11 @@
 import { getLog } from '@dot/log';
 import { SSM, SecretsManager } from 'aws-sdk';
 
+const { DOT_AWS_REGION: region = 'us-east-1' } = process.env;
+
 const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
-const ssm = new SSM({ region: 'us-east-1' });
-const secrets = new SecretsManager({ region: 'us-east-1' });
+const ssm = new SSM({ region });
+const secrets = new SecretsManager({ region });
 
 export const getSecretValue = async (secretId: string) => {
   if (!secretId) {
