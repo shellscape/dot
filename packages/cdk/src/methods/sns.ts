@@ -123,7 +123,7 @@ export const grantRemoteTopic = async ({
 };
 
 const lookupTopicArn = async (topicName: string) => {
-  const client = new SNSClient({});
+  const client = new SNSClient({ region: DotStack.awsRegion });
   const command = new CreateTopicCommand({ Name: topicName });
   const { TopicArn } = await client.send(command);
 

@@ -43,7 +43,7 @@ export const grantRemoteSecret = ({
 };
 
 export const secretExists = async (name: string): Promise<boolean> => {
-  const client = new SecretsManagerClient({});
+  const client = new SecretsManagerClient({ region: DotStack.awsRegion });
   const command = new ListSecretsCommand({
     Filters: [{ Key: 'name', Values: [name] }],
     MaxResults: 1

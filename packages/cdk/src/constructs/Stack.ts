@@ -11,9 +11,11 @@ export interface DotStackProps extends StackProps {
   name: string;
 }
 
-const { DEPLOY_ENV } = process.env;
+const { AWS_REGION, CDK_DEFAULT_REGION, DEPLOY_ENV } = process.env;
+const region = AWS_REGION || CDK_DEFAULT_REGION || 'default (us-east-1)';
 
 export class DotStack extends Stack {
+  static readonly awsRegion = region;
   public readonly app: App;
   public readonly appName: string;
   public readonly env: DeployEnvironment;
@@ -24,7 +26,7 @@ export class DotStack extends Stack {
     const stackName = props.name.replace(/-stack$/, '');
     const env = DEPLOY_ENV as DeployEnvironment;
     const envPrefix = `${env}-`;
-    const stackEnv = { ...(props.env || {}) };
+    const stackEnv = { ...(props.env || { region }) };
 
     super(scope, `${envPrefix}${stackName}-stack`, { ...props, env: stackEnv });
 

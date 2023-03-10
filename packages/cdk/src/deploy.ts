@@ -6,8 +6,9 @@ import { join } from 'path';
 import chalk from 'chalk';
 import yargs from 'yargs-parser';
 
-import { log } from './log';
+import { DotStack } from './constructs/Stack';
 import { addApp, App } from './methods';
+import { log } from './log';
 
 export interface CdkDeployment {
   deploy: (app: App) => void;
@@ -15,7 +16,8 @@ export interface CdkDeployment {
 
 const argv = yargs(process.argv.slice(2));
 const { target }: { target: string } = argv as any;
-const { AWS_REGION, DEPLOY_ENV } = process.env;
+const { DEPLOY_ENV } = process.env;
+
 const app = addApp();
 
 if (!DEPLOY_ENV) {
@@ -29,10 +31,8 @@ if (!DEPLOY_ENV) {
     return;
   }
 
-  const region = AWS_REGION || app.region || 'default';
-
   log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}}}}`);
-  log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${region}\n}}}`);
+  log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${DotStack.awsRegion}\n}}}`);
 
   log.info(chalk`{blue CDK Deploying:} ${target}`);
 

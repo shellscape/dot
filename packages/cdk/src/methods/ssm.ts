@@ -8,7 +8,7 @@ import { DotStack } from '../constructs/Stack';
 
 export const paramExists = async (name: string): Promise<boolean> => {
   try {
-    const client = new SSMClient({});
+    const client = new SSMClient({ region: DotStack.awsRegion });
     const command = new GetParameterCommand({ Name: name });
     const result = await client.send(command);
 
