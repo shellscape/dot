@@ -86,7 +86,6 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
         environment: {
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
           DEPLOY_ENV: env,
-          DOT_AWS_REGION: 'us-east-1',
           IS_FARGATE: 'true',
           NODE_ENV: env,
           NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${nodeMemorySize}`,

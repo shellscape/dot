@@ -43,7 +43,6 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
     // Note: https://acloudguru.com/blog/engineering/building-more-cost-effective-lambda-functions-with-1-ms-billing
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     DEPLOY_ENV: env,
-    DOT_AWS_REGION: 'us-east-1',
     IS_FARGATE: 'true',
     NODE_ENV: env,
     NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${memorySize}`
