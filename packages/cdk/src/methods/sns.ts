@@ -7,7 +7,7 @@ import {
   SqsSubscription
 } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
-import { SNS } from 'aws-sdk';
+import { SNSClient, CreateTopicCommand } from '@aws-sdk/client-sns';
 
 import { DotStack } from '../constructs/Stack';
 
@@ -112,7 +112,7 @@ export const grantRemoteTopic = async ({
   if ((!topicArn && !topicName) || (topicArn && topicName)) {
     throw new RangeError(`grantRemoteTopic requires either topicArn or topicName parameter`);
   }
-  const theTopicArn = topicArn || (await lookupTopicArn(topicName!, scope.awsRegion));
+  const theTopicArn = topicArn || (await lookupTopicArn(topicName!));
   if (!theTopicArn) {
     throw new Error(`Cannot lookup TopicArn for the SNS Topic with name ${topicName}`);
   }
@@ -122,8 +122,10 @@ export const grantRemoteTopic = async ({
   return theTopicArn;
 };
 
-const lookupTopicArn = async (topicName: string, region: string) => {
-  const sns = new SNS({ apiVersion: '2010-03-31', region });
-  const { TopicArn } = await sns.createTopic({ Name: topicName }).promise();
+const lookupTopicArn = async (topicName: string) => {
+  const client = new SNSClient({});
+  const command = new CreateTopicCommand({ Name: topicName });
+  const { TopicArn } = await client.send(command);
+
   return TopicArn;
 };

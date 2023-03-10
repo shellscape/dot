@@ -9,12 +9,18 @@ import yargs from 'yargs-parser';
 import { log } from './log';
 import { addApp, App } from './methods';
 
-const argv = yargs(process.argv.slice(2));
-const { target }: { target: string } = argv as any;
-const app = addApp();
-
 export interface CdkDeployment {
   deploy: (app: App) => void;
+}
+
+const argv = yargs(process.argv.slice(2));
+const { target }: { target: string } = argv as any;
+const { AWS_REGION, DEPLOY_ENV, DOT_AWS_REGION } = process.env;
+const app = addApp();
+
+if (!DEPLOY_ENV) {
+  log.error(chalk`{bold DEPLOY_ENV is {red not set}. Please set DEPLOY_ENV before proceeding}`);
+  process.exit(1);
 }
 
 (async () => {
@@ -22,6 +28,11 @@ export interface CdkDeployment {
     log.warn(chalk`{red No service argument provided. Nothing to deploy}`);
     return;
   }
+
+  const region = DOT_AWS_REGION || AWS_REGION || app.region || 'default';
+
+  log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}}}}`);
+  log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${region}\n}}}`);
 
   log.info(chalk`{blue CDK Deploying:} ${target}`);
 

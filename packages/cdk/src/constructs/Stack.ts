@@ -1,6 +1,4 @@
 import { App, CfnResource, Resource, Stack, StackProps } from 'aws-cdk-lib';
-import AWS from 'aws-sdk';
-
 import camelcase from 'camelcase';
 import chalk from 'chalk';
 
@@ -13,16 +11,7 @@ export interface DotStackProps extends StackProps {
   name: string;
 }
 
-const { AWS_REGION, DEPLOY_ENV, DOT_AWS_REGION } = process.env;
-const region = DOT_AWS_REGION || AWS_REGION || new AWS.Config().region;
-
-if (!DEPLOY_ENV) {
-  log.error(chalk`{bold DEPLOY_ENV is {red not set}. Please set DEPLOY_ENV before proceeding}`);
-  process.exit(1);
-}
-
-log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}}}}`);
-log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${region}\n}}}`);
+const { DEPLOY_ENV } = process.env;
 
 export class DotStack extends Stack {
   public readonly app: App;
@@ -30,13 +19,12 @@ export class DotStack extends Stack {
   public readonly env: DeployEnvironment;
   public readonly envPrefix: string;
   public readonly ssmPrefix: string;
-  public readonly awsRegion = region;
 
   constructor(scope: App, props: DotStackProps) {
     const stackName = props.name.replace(/-stack$/, '');
     const env = DEPLOY_ENV as DeployEnvironment;
     const envPrefix = `${env}-`;
-    const stackEnv = { ...(props.env || {}), region };
+    const stackEnv = { ...(props.env || {}) };
 
     super(scope, `${envPrefix}${stackName}-stack`, { ...props, env: stackEnv });
 

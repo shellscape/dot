@@ -1,7 +1,6 @@
+import { SecretsManagerClient, ListSecretsCommand } from '@aws-sdk/client-secrets-manager';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
-
-import SecretsManager from 'aws-sdk/clients/secretsmanager';
 
 import { DotStack } from '../constructs/Stack';
 
@@ -43,11 +42,13 @@ export const grantRemoteSecret = ({
   return secret.secretArn;
 };
 
-export const secretExists = async (name: string, region: string): Promise<boolean> => {
-  const sm = new SecretsManager({ region });
+export const secretExists = async (name: string): Promise<boolean> => {
+  const client = new SecretsManagerClient({});
+  const command = new ListSecretsCommand({
+    Filters: [{ Key: 'name', Values: [name] }],
+    MaxResults: 1
+  });
+  const response = await client.send(command);
 
-  const response = await sm
-    .listSecrets({ Filters: [{ Key: 'name', Values: [name] }], MaxResults: 1 })
-    .promise();
   return (response.SecretList?.length ?? 0) > 0;
 };

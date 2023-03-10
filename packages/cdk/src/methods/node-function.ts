@@ -36,7 +36,7 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
   const baseName = DotStack.baseName(name, 'fn');
   const bundleOptions = {
     ...esbuild,
-    externalModules: [...(esbuild.externalModules || []), ...['aws-sdk', 'pg-native']]
+    externalModules: [...(esbuild.externalModules || []), ...['pg-native']]
   };
   const fnName = scope.resourceName(baseName);
   const defaultEnv: typeof environmentVariables = {

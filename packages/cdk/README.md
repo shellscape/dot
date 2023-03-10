@@ -73,12 +73,6 @@ const { sourceStream } = addFirehose({
 sourceStream.grantWrite(handler);
 ```
 
-## AWS Region
-
-## AWS Region
-
-By default, the AWS Region that deployments use is `undefined` and will default to the local AWS Configuration. To change the region for fetching secrets or SSM parameters, set the `AWS_REGION` [environment variable](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-region.html) or appropriate AWS-specific configuration. The region can also be overridden with the `DOT_AWS_REGION` environment variable, should there be a need. This allows for the same deployment to affect multiple regions based on the envrionment the deployment is running within.
-
 ## Meta
 
 [CONTRIBUTING](../.github/CONTRIBUTING.md)

@@ -1,18 +1,20 @@
 import { AssertionError } from 'assert';
 
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { ParameterTier, StringParameter } from 'aws-cdk-lib/aws-ssm';
-import SSM from 'aws-sdk/clients/ssm';
 
 import { DotStack } from '../constructs/Stack';
 
-export const paramExists = async (name: string, region: string): Promise<boolean> => {
-  const ssm = new SSM({ region });
+export const paramExists = async (name: string): Promise<boolean> => {
   try {
-    const param = await ssm.getParameter({ Name: name }).promise();
-    return param.Parameter?.Value != null;
+    const client = new SSMClient({});
+    const command = new GetParameterCommand({ Name: name });
+    const result = await client.send(command);
+
+    return result.Parameter?.Value != null;
   } catch (error: any) {
-    if (error.code === 'ParameterNotFound') {
+    if (error.name === 'ParameterNotFound') {
       return false;
     }
     throw error;
