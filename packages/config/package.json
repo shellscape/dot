@@ -26,17 +26,14 @@
     "dist",
     "README.md"
   ],
-  "peerDependencies": {
-    "aws-sdk": "^2.1226.0"
-  },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.256.0",
+    "@aws-sdk/client-ssm": "^3.256.0",
     "@dot/log": "workspace:*",
     "chalk": "^4.1.0",
     "mem": "^8.0.0"
   },
   "devDependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.256.0",
-    "@aws-sdk/client-ssm": "^3.256.0",
     "aws-sdk": "^2.1300.0",
     "aws-sdk-client-mock": "^2.0.1",
     "aws-sdk-mock": "^5.8.0"

@@ -1,11 +1,10 @@
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import { SSMClient, GetParameterCommand, PutParameterCommand } from '@aws-sdk/client-ssm';
 import { getLog } from '@dot/log';
-import { SSM, SecretsManager } from 'aws-sdk';
 
 const { DOT_AWS_REGION: region } = process.env;
 
 const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
-const ssm = new SSM({ region });
-const secrets = new SecretsManager({ region });
 
 export const getSecretValue = async (secretId: string) => {
   if (!secretId) {
@@ -16,9 +15,10 @@ export const getSecretValue = async (secretId: string) => {
   log.debug('Secret requested:', secretId);
 
   try {
-    const secret: SecretsManager.GetSecretValueResponse = await secrets
-      .getSecretValue({ SecretId: secretId })
-      .promise();
+    const client = new SecretsManagerClient({ region });
+    const command = new GetSecretValueCommand({ SecretId: secretId });
+    const secret = await client.send(command);
+
     const result = secret.SecretString;
 
     if (result) log.debug('Secret Found:', result.replace(/.(?=.{4})/g, '*'));
@@ -39,16 +39,15 @@ export const getSsmValue = async (path: string) => {
 
   log.debug('Parameter requested:', path);
 
-  // If / when we need to read encrypted keys, we'll need WithDecryption
-  const params = { Name: path };
-
   try {
-    const { Parameter: result } = await ssm.getParameter(params).promise();
+    const client = new SSMClient({ region });
+    const command = new GetParameterCommand({ Name: path });
+    const { Parameter: result } = await client.send(command);
 
     if (result) log.debug('Parameter Found:', result.Value?.replace(/.(?=.{4})/g, '*'));
     else log.debug('Parameter Not Found');
 
-    return result?.Value;
+    return result!.Value;
   } catch (error) {
     log.error('SSM Error:', error);
     return void 0;
@@ -58,9 +57,9 @@ export const getSsmValue = async (path: string) => {
 export const putSsmValue = async (path: string, value: string) => {
   if (!path) return void 0;
 
-  const result = await ssm
-    .putParameter({ Name: path, Overwrite: true, Value: String(value) })
-    .promise();
+  const client = new SSMClient({ region });
+  const command = new PutParameterCommand({ Name: path, Overwrite: true, Value: String(value) });
+  const result = await client.send(command);
 
-  return result.$response;
+  return result.$metadata;
 };
