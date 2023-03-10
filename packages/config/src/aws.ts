@@ -2,8 +2,6 @@ import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-sec
 import { SSMClient, GetParameterCommand, PutParameterCommand } from '@aws-sdk/client-ssm';
 import { getLog } from '@dot/log';
 
-const { DOT_AWS_REGION: region } = process.env;
-
 const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
 
 export const getSecretValue = async (secretId: string) => {
@@ -15,7 +13,7 @@ export const getSecretValue = async (secretId: string) => {
   log.debug('Secret requested:', secretId);
 
   try {
-    const client = new SecretsManagerClient({ region });
+    const client = new SecretsManagerClient({});
     const command = new GetSecretValueCommand({ SecretId: secretId });
     const secret = await client.send(command);
 
@@ -40,7 +38,7 @@ export const getSsmValue = async (path: string) => {
   log.debug('Parameter requested:', path);
 
   try {
-    const client = new SSMClient({ region });
+    const client = new SSMClient({});
     const command = new GetParameterCommand({ Name: path });
     const { Parameter: result } = await client.send(command);
 
@@ -57,7 +55,7 @@ export const getSsmValue = async (path: string) => {
 export const putSsmValue = async (path: string, value: string) => {
   if (!path) return void 0;
 
-  const client = new SSMClient({ region });
+  const client = new SSMClient({});
   const command = new PutParameterCommand({ Name: path, Overwrite: true, Value: String(value) });
   const result = await client.send(command);
 
