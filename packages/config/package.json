@@ -34,7 +34,6 @@
     "mem": "^8.0.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.1300.0",
     "aws-sdk-client-mock": "^2.0.1",
     "aws-sdk-mock": "^5.8.0"
   }
