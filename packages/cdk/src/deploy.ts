@@ -15,7 +15,7 @@ export interface CdkDeployment {
 
 const argv = yargs(process.argv.slice(2));
 const { target }: { target: string } = argv as any;
-const { AWS_REGION, DEPLOY_ENV, DOT_AWS_REGION } = process.env;
+const { AWS_REGION, DEPLOY_ENV } = process.env;
 const app = addApp();
 
 if (!DEPLOY_ENV) {
@@ -29,7 +29,7 @@ if (!DEPLOY_ENV) {
     return;
   }
 
-  const region = DOT_AWS_REGION || AWS_REGION || app.region || 'default';
+  const region = AWS_REGION || app.region || 'default';
 
   log.info(chalk`{bold {dim DEPLOY_ENV = }{bold {magenta ${DEPLOY_ENV}}}}`);
   log.info(chalk`{bold {dim AWS Region: }{bold {magenta ${region}\n}}}`);
