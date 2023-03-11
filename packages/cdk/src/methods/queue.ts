@@ -81,7 +81,7 @@ export const addQueue = (options: AddQueueOptions): AddQueueResult => {
   let dlqParams: AddQueueResultParams | undefined = void 0;
 
   if (deadLetter) {
-    const { queue, params } = addQueue(Object.assign(deadLetter, { name: 'dlq', scope }));
+    const { queue, params } = addQueue({ ...deadLetter, consumers, name: `${name}-dlq`, scope });
     dlqParams = params;
     deadLetterQueue = {
       maxReceiveCount: deadLetter?.maxReceiveCount ?? 1,
