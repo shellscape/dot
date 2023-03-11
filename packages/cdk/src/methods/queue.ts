@@ -36,9 +36,16 @@ interface AddQueueOptions {
   visibilityTimeout?: Duration;
 }
 
+interface AddQueueResultParams {
+  arnParam: StringParameter;
+  urlParam: StringParameter;
+}
+
 interface AddQueueResult {
+  deadLetterQueue?: Queue;
+  dlqParams?: AddQueueResultParams;
   handler?: Function;
-  params: { arnParam: StringParameter; urlParam: StringParameter };
+  params: AddQueueResultParams;
   queue: Queue;
 }
 
@@ -71,11 +78,14 @@ export const addQueue = (options: AddQueueOptions): AddQueueResult => {
   const queueName = `${scope.appName}-${baseName}`;
   let deadLetterQueue: DeadLetterQueue | undefined = void 0;
   let handlerFn: QueueHandler | undefined = void 0;
+  let dlqParams: AddQueueResultParams | undefined = void 0;
 
   if (deadLetter) {
+    const { queue, params } = addQueue(Object.assign(deadLetter, { name: 'dlq', scope }));
+    dlqParams = params;
     deadLetterQueue = {
       maxReceiveCount: deadLetter?.maxReceiveCount ?? 1,
-      queue: addQueue(Object.assign(deadLetter, { name: 'dlq', scope })).queue
+      queue
     };
   }
 
@@ -155,7 +165,13 @@ export const addQueue = (options: AddQueueOptions): AddQueueResult => {
     queue.grantConsumeMessages(resource);
   });
 
-  return { handler: handlerFn, params: { arnParam, urlParam }, queue };
+  return {
+    deadLetterQueue: deadLetterQueue?.queue as Queue | undefined,
+    dlqParams,
+    handler: handlerFn,
+    params: { arnParam, urlParam },
+    queue
+  };
 };
 
 export const grantRemoteQueue = ({
