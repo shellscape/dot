@@ -1,6 +1,6 @@
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Bucket, BucketProps, EventType, NotificationKeyFilter } from 'aws-cdk-lib/aws-s3';
-import { Effect, IGrantable, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { S3EventSource, S3EventSourceProps } from 'aws-cdk-lib/aws-lambda-event-sources';
 
 import { Function } from 'aws-cdk-lib/aws-lambda';
@@ -43,8 +43,10 @@ interface AddBucketResult {
 }
 
 interface GrantFullBucketAccessOptions {
-  bucket: Bucket;
+  bucket?: Bucket;
+  bucketName?: string;
   consumers: IGrantable[];
+  scope: DotStack;
 }
 
 export const addBucket = (options: AddBucketOptions): AddBucketResult => {
@@ -129,15 +131,16 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
 
 export const grantFullBucketAccess = async ({
   bucket,
-  consumers
+  bucketName,
+  consumers,
+  scope
 }: GrantFullBucketAccessOptions) => {
-  consumers.forEach((consumer) =>
-    consumer.grantPrincipal.addToPrincipalPolicy(
-      new PolicyStatement({
-        actions: ['s3:*'],
-        effect: Effect.ALLOW,
-        resources: [`${bucket.bucketArn}/*`]
-      })
-    )
-  );
+  if (!bucket && !bucketName) throw new RangeError('bucket or bucketName must be specified');
+
+  const target =
+    bucket || Bucket.fromBucketName(scope, `fromBucketName-${+new Date()}`, bucketName!);
+
+  consumers.forEach((consumer) => {
+    target.grantReadWrite(consumer);
+  });
 };
