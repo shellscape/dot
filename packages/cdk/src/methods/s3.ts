@@ -78,9 +78,11 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   let { removalPolicy = RemovalPolicy.RETAIN } = options;
 
   const baseName = DotStack.baseName(name, 'bucket');
-  const bucketName = `${scope.appName}-${baseName}`;
+  const bucketName = scope.resourceName(baseName);
   const lifeCycleRules = [];
   const websiteIndexDocument = staticHosting ? 'index.html' : void 0;
+
+  log.info('Creating Bucket:', { baseName, bucketName, name });
 
   if (expireAfterDays && expireAfterDays > 0) {
     lifeCycleRules.push({
