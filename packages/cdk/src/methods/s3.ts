@@ -159,7 +159,7 @@ export const addBucketDeployment = (
     sourcePath
   } = options;
   const distributionPaths = distribution && invalidateCache ? ['/**/*', '/*'] : void 0;
-  const deployment = new BucketDeployment(scope, `${bucket.bucketName}-deploy-${+new Date()}`, {
+  const deployment = new BucketDeployment(scope, `bucket-deploy-${+new Date()}`, {
     destinationBucket: bucket,
     distribution,
     distributionPaths,
