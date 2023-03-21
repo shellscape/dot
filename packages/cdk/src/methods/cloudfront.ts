@@ -26,7 +26,7 @@ interface AddS3DistOptions extends BaseDistOptions {
 }
 
 const getLogBucket = (name: string, scope: DotStack) => {
-  const { bucket } = addBucket({ expireAfterDays: 10, name: `${name}-dist`, scope });
+  const { bucket } = addBucket({ expireAfterDays: 10, name: `${name}-log`, scope });
   bucket.applyRemovalPolicy(RemovalPolicy.DESTROY);
   return bucket;
 };
@@ -42,7 +42,7 @@ export const addS3Distribution = ({
   const baseName = DotStack.baseName(name, 'dist');
   const distName = scope.resourceName(baseName);
   const certificate = Certificate.fromCertificateArn(scope, `${distName}-cert`, certificateArn);
-  const logBucket = getLogBucket(name, scope);
+  const logBucket = getLogBucket(baseName, scope);
   const originAccessIdentity = new OriginAccessIdentity(scope, `${distName}-origin-access`);
   let errorResponses: ErrorResponse[] | undefined = void 0;
 
