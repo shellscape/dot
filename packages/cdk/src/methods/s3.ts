@@ -1,13 +1,17 @@
+import { dirname } from 'path';
+
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import type { IDistribution } from 'aws-cdk-lib/aws-cloudfront';
 import { Bucket, BucketProps, EventType, NotificationKeyFilter } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { S3EventSource, S3EventSourceProps } from 'aws-cdk-lib/aws-lambda-event-sources';
-
 import { Function } from 'aws-cdk-lib/aws-lambda';
-
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 import { DotStack } from '../constructs/Stack';
+import { log } from '../log';
 
 import { addParam } from './ssm';
 import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
@@ -22,6 +26,19 @@ interface BucketEventHandlerOptions {
 }
 
 interface BucketKeyFilterOptions extends NotificationKeyFilter {}
+
+export interface AddBucketDeploymentOptions {
+  bucket: Bucket;
+  distribution?: IDistribution;
+  invalidateCache?: boolean;
+  removalPolicy?: RemovalPolicy.DESTROY | RemovalPolicy.RETAIN;
+  scope: DotStack;
+  sourcePath: string;
+}
+
+export interface AddBucketDeploymentResult {
+  deployment: BucketDeployment;
+}
 
 export interface AddBucketOptions {
   autoDelete?: boolean;
@@ -39,6 +56,7 @@ export interface AddBucketOptions {
 
 interface AddBucketResult {
   bucket: Bucket;
+  deployment?: BucketDeployment;
   params: { arnParam: StringParameter; nameParam: StringParameter };
 }
 
@@ -127,6 +145,36 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   }
 
   return { bucket, params: { arnParam, nameParam } };
+};
+
+export const addBucketDeployment = (
+  options: AddBucketDeploymentOptions
+): AddBucketDeploymentResult => {
+  const {
+    bucket,
+    distribution,
+    invalidateCache,
+    removalPolicy = RemovalPolicy.DESTROY,
+    scope,
+    sourcePath
+  } = options;
+  const distributionPaths = distribution && invalidateCache ? ['/**/*', '/*'] : void 0;
+  const deployment = new BucketDeployment(scope, `${bucket.bucketName}-deploy-${+new Date()}`, {
+    destinationBucket: bucket,
+    distribution,
+    distributionPaths,
+    logRetention: RetentionDays.ONE_WEEK,
+    retainOnDelete: removalPolicy === RemovalPolicy.RETAIN,
+    sources: [Source.asset(dirname(sourcePath))]
+  });
+
+  if (invalidateCache && !distribution) {
+    log.warn(
+      'addBucketDeployment → invalidateCache has no effect without specifying a distributon'
+    );
+  }
+
+  return { deployment };
 };
 
 export const grantFullBucketAccess = async ({
