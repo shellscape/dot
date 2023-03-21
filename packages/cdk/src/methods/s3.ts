@@ -1,5 +1,3 @@
-import { dirname } from 'path';
-
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import type { IDistribution } from 'aws-cdk-lib/aws-cloudfront';
 import { Bucket, BucketProps, EventType, NotificationKeyFilter } from 'aws-cdk-lib/aws-s3';
@@ -165,7 +163,7 @@ export const addBucketDeployment = (
     distributionPaths,
     logRetention: RetentionDays.ONE_WEEK,
     retainOnDelete: removalPolicy === RemovalPolicy.RETAIN,
-    sources: [Source.asset(dirname(sourcePath))]
+    sources: [Source.asset(sourcePath)]
   });
 
   if (invalidateCache && !distribution) {
