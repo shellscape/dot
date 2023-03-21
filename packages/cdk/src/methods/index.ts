@@ -1,6 +1,7 @@
 export * from './api';
 export * from './app';
 export * from './backup';
+export * from './cloudfront';
 export * from './dynamo';
 export * from './event';
 export * from './fargate';
