@@ -24,7 +24,6 @@ export interface AddFunctionOptions {
   memorySize?: number;
   name?: string;
   scope: DotStack;
-  sourcePath: string;
   storageMb?: number;
   timeout?: Duration;
 }
