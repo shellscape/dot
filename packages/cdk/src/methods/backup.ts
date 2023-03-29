@@ -6,6 +6,11 @@ import { DotStack } from '../constructs/Stack';
 interface BackupOptions {
   arns?: string[];
   name: string;
+  /**
+   * @desc Default: false. If true, the backup uses the Point In Time Recovery method.
+   *       If false, the backup uses the standard on-demand method.
+   */
+  pointInTime?: boolean;
   scope: DotStack;
   tables?: Table[];
 }
@@ -15,17 +20,26 @@ interface BackupOptions {
  *       Backups are retained for five years, and moved to cold storage after 30 days.
  */
 export const addBackup = (options: BackupOptions) => {
-  const { arns = [], scope, tables = [] } = options;
-  const id = options.name.replace(/-backup$/, '');
-  const name = `${scope.appName}-${id}`;
-  const selectionName = `${name}-resources`;
-  const plan = new BackupPlan(scope, id, { backupPlanName: name });
-  const resources: BackupResource[] = [];
+  const { arns = [], name, pointInTime, scope, tables = [] } = options;
+  const id = name.replace(/-backup$/, '');
+  const backupPlanName = `${scope.appName}-${id}`;
+  const selectionName = `${backupPlanName}-resources`;
+  const plan = new BackupPlan(scope, id, { backupPlanName });
+  const resources: BackupResource[] = [
+    ...arns.map((arn) => BackupResource.fromArn(arn)),
+    ...tables.map((table) => BackupResource.fromDynamoDbTable(table))
+  ];
 
-  resources.push(...arns.map((arn) => BackupResource.fromArn(arn)));
-  resources.push(...tables.map((table) => BackupResource.fromDynamoDbTable(table)));
+  if (pointInTime) {
+    plan.addRule(
+      new BackupPlanRule({
+        enableContinuousBackup: true
+      })
+    );
+  } else {
+    plan.addRule(BackupPlanRule.monthly5Year());
+  }
 
-  plan.addRule(BackupPlanRule.monthly5Year());
   plan.addSelection(selectionName, { backupSelectionName: selectionName, resources });
 
   return { plan };
