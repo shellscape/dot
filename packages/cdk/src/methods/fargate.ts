@@ -1,6 +1,11 @@
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { InterfaceVpcEndpointAwsService, Peer, Port } from 'aws-cdk-lib/aws-ec2';
-import { ContainerImage, LogDriver, FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
+import {
+  ContainerImage,
+  LogDriver,
+  FargateService,
+  FargateTaskDefinition
+} from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
@@ -43,6 +48,7 @@ interface AddServiceOptions {
 }
 
 export interface AddServiceResult {
+  service: FargateService;
   task: FargateTaskDefinition;
 }
 
@@ -164,7 +170,5 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     service: InterfaceVpcEndpointAwsService.SSM
   });
 
-  return {
-    task: taskDefinition
-  };
+  return { service, task: taskDefinition };
 };
