@@ -51,7 +51,7 @@ type TopicArn = string;
 export const addTopic = (options: AddTopicOptions) => {
   const { displayName, emailAddress, handler, name = '', scope } = options;
   const baseName = DotStack.baseName(name, 'topic');
-  const topicName = scope.envPrefix + baseName;
+  const topicName = scope.resourceName(baseName);
   let topicHandler: Function | null = null;
 
   const topic = new Topic(scope, topicName, { displayName, topicName });
