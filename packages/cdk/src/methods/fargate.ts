@@ -48,6 +48,7 @@ interface AddServiceOptions {
 }
 
 export interface AddServiceResult {
+  aggregate: ecsPatterns.ApplicationLoadBalancedFargateService;
   service: FargateService;
   task: FargateTaskDefinition;
 }
@@ -76,34 +77,35 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     directory: baseDir
   });
 
-  const { cluster, loadBalancer, service, targetGroup, taskDefinition } =
-    new ecsPatterns.ApplicationLoadBalancedFargateService(scope, serviceName, {
-      assignPublicIp: true,
-      certificate,
-      cpu,
-      desiredCount: desiredInstances,
-      loadBalancerName: `${serviceName}-lb`,
-      memoryLimitMiB: memory,
-      protocol: ApplicationProtocol.HTTPS,
-      publicLoadBalancer: true,
-      serviceName,
-      taskImageOptions: {
-        containerPort: 80,
-        environment: {
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-          DEPLOY_ENV: env,
-          IS_FARGATE: 'true',
-          NODE_ENV: env,
-          NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${nodeMemorySize}`,
-          ...environmentVariables
-        },
-        image: ContainerImage.fromDockerImageAsset(asset),
-        logDriver: LogDriver.awsLogs({
-          logRetention: RetentionDays.ONE_WEEK,
-          streamPrefix: serviceName
-        })
-      }
-    });
+  const aggregate = new ecsPatterns.ApplicationLoadBalancedFargateService(scope, serviceName, {
+    assignPublicIp: true,
+    certificate,
+    cpu,
+    desiredCount: desiredInstances,
+    loadBalancerName: `${serviceName}-lb`,
+    memoryLimitMiB: memory,
+    protocol: ApplicationProtocol.HTTPS,
+    publicLoadBalancer: true,
+    serviceName,
+    taskImageOptions: {
+      containerPort: 80,
+      environment: {
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+        DEPLOY_ENV: env,
+        IS_FARGATE: 'true',
+        NODE_ENV: env,
+        NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${nodeMemorySize}`,
+        ...environmentVariables
+      },
+      image: ContainerImage.fromDockerImageAsset(asset),
+      logDriver: LogDriver.awsLogs({
+        logRetention: RetentionDays.ONE_WEEK,
+        streamPrefix: serviceName
+      })
+    }
+  });
+
+  const { cluster, loadBalancer, service, targetGroup, taskDefinition } = aggregate;
 
   scope.overrideId(service, serviceName);
 
@@ -170,5 +172,5 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     service: InterfaceVpcEndpointAwsService.SSM
   });
 
-  return { service, task: taskDefinition };
+  return { aggregate, service, task: taskDefinition };
 };
