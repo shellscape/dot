@@ -49,12 +49,18 @@ importers:
 
   packages/cdk:
     dependencies:
+      '@aws-cdk/aws-apigatewayv2-alpha':
+        specifier: 2.74.0-alpha.0
+        version: 2.74.0-alpha.0(aws-cdk-lib@2.74.0)(constructs@10.1.229)
+      '@aws-cdk/aws-apigatewayv2-integrations-alpha':
+        specifier: 2.74.0-alpha.0
+        version: 2.74.0-alpha.0(@aws-cdk/aws-apigatewayv2-alpha@2.74.0-alpha.0)(aws-cdk-lib@2.74.0)(constructs@10.1.229)
       '@aws-cdk/aws-kinesisfirehose-alpha':
-        specifier: 2.73.0-alpha.0
-        version: 2.73.0-alpha.0(aws-cdk-lib@2.73.0)(constructs@10.1.229)
+        specifier: 2.74.0-alpha.0
+        version: 2.74.0-alpha.0(aws-cdk-lib@2.74.0)(constructs@10.1.229)
       '@aws-cdk/aws-kinesisfirehose-destinations-alpha':
-        specifier: 2.73.0-alpha.0
-        version: 2.73.0-alpha.0(@aws-cdk/aws-kinesisfirehose-alpha@2.73.0-alpha.0)(aws-cdk-lib@2.73.0)(constructs@10.1.229)
+        specifier: 2.74.0-alpha.0
+        version: 2.74.0-alpha.0(@aws-cdk/aws-kinesisfirehose-alpha@2.74.0-alpha.0)(aws-cdk-lib@2.74.0)(constructs@10.1.229)
       '@aws-sdk/client-secrets-manager':
         specifier: ^3.288.0
         version: 3.288.0
@@ -71,8 +77,8 @@ importers:
         specifier: workspace:*
         version: link:../log
       aws-cdk-lib:
-        specifier: ^2.73.0
-        version: 2.73.0(constructs@10.1.229)
+        specifier: ^2.74.0
+        version: 2.74.0(constructs@10.1.229)
       camelcase:
         specifier: ^6.2.0
         version: 6.3.0
@@ -207,8 +213,8 @@ packages:
     resolution: {integrity: sha512-SC6H0UBO+xv2F3TUEF/ODRgXX3BtnD8ga3pr0iey6134jvs9SioJFQ/nJ+cHnNH7L6e5T4nE73Jj8TciCbamQg==}
     dev: false
 
-  /@aws-cdk/aws-kinesisfirehose-alpha@2.73.0-alpha.0(aws-cdk-lib@2.73.0)(constructs@10.1.229):
-    resolution: {integrity: sha512-5nPOYxKMmgKdoaRpHpWgI0AFKHxd3kxIWRqTxrqypzRbw6DeLzzob/53aX19efObrdQkAI5U4Tan+zN1SuA7og==}
+  /@aws-cdk/aws-apigatewayv2-alpha@2.74.0-alpha.0(aws-cdk-lib@2.74.0)(constructs@10.1.229):
+    resolution: {integrity: sha512-Fvh5it1utxzGlQU51oz7lFiaWeVwjsT5Yc6TCjAx4mdJI9zQtPo3735fASe4QvKIaHRuT/eVyBqzAK3+HgaShQ==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
       aws-cdk-lib: '*'
@@ -219,12 +225,48 @@ packages:
       constructs:
         optional: true
     dependencies:
-      aws-cdk-lib: 2.73.0(constructs@10.1.229)
+      aws-cdk-lib: 2.74.0(constructs@10.1.229)
       constructs: 10.1.229
     dev: false
 
-  /@aws-cdk/aws-kinesisfirehose-destinations-alpha@2.73.0-alpha.0(@aws-cdk/aws-kinesisfirehose-alpha@2.73.0-alpha.0)(aws-cdk-lib@2.73.0)(constructs@10.1.229):
-    resolution: {integrity: sha512-kLCI2wH+N4kZ/Z45NkNHHV5xBj5Fmb5gUopMv5HMqzDLqrCSxO1XHTJPkVTqfQOiK0Az9vhSb9jZ8lL3bxL9eA==}
+  /@aws-cdk/aws-apigatewayv2-integrations-alpha@2.74.0-alpha.0(@aws-cdk/aws-apigatewayv2-alpha@2.74.0-alpha.0)(aws-cdk-lib@2.74.0)(constructs@10.1.229):
+    resolution: {integrity: sha512-vXUOib8+WaAlM4VK33CDDK+tiQ53cu/WSR9M/BY4NPmF42IzEjnyIXyxm43u0LGt9rhQV1VZidG6eyguZEt3dQ==}
+    engines: {node: '>= 14.15.0'}
+    peerDependencies:
+      '@aws-cdk/aws-apigatewayv2-alpha': '*'
+      aws-cdk-lib: '*'
+      constructs: '*'
+    peerDependenciesMeta:
+      '@aws-cdk/aws-apigatewayv2-alpha':
+        optional: true
+      aws-cdk-lib:
+        optional: true
+      constructs:
+        optional: true
+    dependencies:
+      '@aws-cdk/aws-apigatewayv2-alpha': 2.74.0-alpha.0(aws-cdk-lib@2.74.0)(constructs@10.1.229)
+      aws-cdk-lib: 2.74.0(constructs@10.1.229)
+      constructs: 10.1.229
+    dev: false
+
+  /@aws-cdk/aws-kinesisfirehose-alpha@2.74.0-alpha.0(aws-cdk-lib@2.74.0)(constructs@10.1.229):
+    resolution: {integrity: sha512-32MY5WPRZEfJk2bRaaR6OomANp9IR0g9XDaT2RPzuKeiafwoo0nNG0fZNTtzNL4YxDGk0LgrcTUT7Qz1bYTs/g==}
+    engines: {node: '>= 14.15.0'}
+    peerDependencies:
+      aws-cdk-lib: '*'
+      constructs: '*'
+    peerDependenciesMeta:
+      aws-cdk-lib:
+        optional: true
+      constructs:
+        optional: true
+    dependencies:
+      aws-cdk-lib: 2.74.0(constructs@10.1.229)
+      constructs: 10.1.229
+    dev: false
+
+  /@aws-cdk/aws-kinesisfirehose-destinations-alpha@2.74.0-alpha.0(@aws-cdk/aws-kinesisfirehose-alpha@2.74.0-alpha.0)(aws-cdk-lib@2.74.0)(constructs@10.1.229):
+    resolution: {integrity: sha512-PebFxieWNFgl18lVIc9EvOtK8FY+J4jTCfWlS50H50oPgP8B/PCqMYIxrzXKxS5SBXq9L0AF/gNeKriaAjrBKQ==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
       '@aws-cdk/aws-kinesisfirehose-alpha': '*'
@@ -238,8 +280,8 @@ packages:
       constructs:
         optional: true
     dependencies:
-      '@aws-cdk/aws-kinesisfirehose-alpha': 2.73.0-alpha.0(aws-cdk-lib@2.73.0)(constructs@10.1.229)
-      aws-cdk-lib: 2.73.0(constructs@10.1.229)
+      '@aws-cdk/aws-kinesisfirehose-alpha': 2.74.0-alpha.0(aws-cdk-lib@2.74.0)(constructs@10.1.229)
+      aws-cdk-lib: 2.74.0(constructs@10.1.229)
       constructs: 10.1.229
     dev: false
 
@@ -2207,8 +2249,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /aws-cdk-lib@2.73.0(constructs@10.1.229):
-    resolution: {integrity: sha512-r9CUe3R7EThr9U0Eb7kQCK4Ee34TDeMH+bonvGD9rNRRTYDauvAgNCsx4DZYYksPrXLRzWjzVbuXAHaDDzWt+A==}
+  /aws-cdk-lib@2.74.0(constructs@10.1.229):
+    resolution: {integrity: sha512-cPoYEVmJ06pi57q4uW2v/dwXvkr9JHDeSd4+ylBALccbYiRPlZw0OiNH+F2B+hrDVAiaYZWV3HE8hVDDON4+ZA==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
       constructs: '*'
