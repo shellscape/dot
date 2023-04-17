@@ -1,9 +1,23 @@
-import { CfnAccount, CfnStage } from 'aws-cdk-lib/aws-apigateway';
-import { WebSocketApi, WebSocketApiProps, WebSocketStage } from '@aws-cdk/aws-apigatewayv2-alpha';
+import {
+  AccessLogFormat,
+  CfnAccount,
+  CfnStage,
+  DomainName,
+  DomainNameProps,
+  EndpointType,
+  SecurityPolicy
+} from 'aws-cdk-lib/aws-apigateway';
+import {
+  ApiMapping,
+  WebSocketApi,
+  WebSocketApiProps,
+  WebSocketStage
+} from '@aws-cdk/aws-apigatewayv2-alpha';
 import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
-import { RemovalPolicy } from 'aws-cdk-lib/core';
-import { ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { RemovalPolicy, Stack } from 'aws-cdk-lib/core';
+import { Grant, IGrantable, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { LogGroup, LogRetention, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 import { DeployEnvironment, DotStack } from '../constructs/Stack';
 
@@ -12,14 +26,37 @@ import { addParam } from './ssm';
 
 interface AddWebsocketApiOptions extends AddNodeFunctionOptions {
   deployEnv?: DeployEnvironment;
+  domain?: ApiDomainOptions;
   name?: string;
   routes?: string[];
 }
 
+interface ApiDomainOptions {
+  certificateArn: string;
+  tld: string;
+}
+
+interface GrantRemoteWsOptions {
+  apiArn: string;
+  consumers: IGrantable[];
+}
+
 export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
-  const { deployEnv = 'prod', name = '', routes = [], scope } = options;
+  const { deployEnv = 'prod', domain, name = '', routes = [], scope } = options;
   const baseName = DotStack.baseName(name, 'api');
   const apiName = scope.resourceName(baseName);
+  const domainOptions = domain
+    ? ({
+        certificate: Certificate.fromCertificateArn(
+          scope,
+          `${apiName}-cert`,
+          domain.certificateArn
+        ),
+        domainName: domain.tld,
+        endpointTypes: EndpointType.REGIONAL,
+        securityPolicy: SecurityPolicy.TLS_1_2
+      } as DomainNameProps)
+    : void 0;
 
   const handler = addNodeFunction(options);
   const integration = new WebSocketLambdaIntegration(`${apiName}-int`, handler);
@@ -37,6 +74,24 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
     webSocketApi: api
   });
 
+  if (domainOptions) {
+    const domainName = new DomainName(scope, `${apiName}-domain`, domainOptions);
+    const apiMapping = new ApiMapping(scope, `${apiName}-mapping`, {
+      api,
+      domainName: domainName as any,
+      stage
+    });
+
+    apiMapping.node.addDependency(domainName);
+  }
+
+  // SAD: there's no way to configure the retention period AND removal for execution logs easily
+  // eslint-disable-next-line no-new
+  new LogRetention(scope, `${apiName}-log-retention`, {
+    logGroupName: `API-Gateway-Execution-Logs_${api.apiId}/${deployEnv}`,
+    retention: RetentionDays.ONE_WEEK
+  });
+
   for (const route of routes) {
     api.addRoute(route, { integration });
   }
@@ -45,6 +100,21 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
   api.grantManageConnections(handler);
   // Note: This is necessary as of 2/22/22. The WebSocketApi construct is still considered experimental
   handler.grantInvoke(new ServicePrincipal('apigateway.amazonaws.com'));
+
+  const apiIdParam = addParam({
+    id: `${apiName}-api-id-param`,
+    name: `${scope.ssmPrefix}/api-id/${baseName}`,
+    scope,
+    value: api.apiId
+  });
+
+  const arn = Stack.of(api).formatArn({ resource: api.apiId, service: 'execute-api' });
+  const arnParam = addParam({
+    id: `${apiName}-arn-param`,
+    name: `${scope.ssmPrefix}/arn/${baseName}`,
+    scope,
+    value: arn
+  });
 
   const urlParam = addParam({
     id: `${apiName}-url-param`,
@@ -69,6 +139,7 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
   });
 
   const log = new LogGroup(scope, 'AccessLogs', {
+    logGroupName: `${apiName}-access-logs`,
     removalPolicy: RemovalPolicy.DESTROY,
     retention: RetentionDays.ONE_WEEK
   });
@@ -76,7 +147,7 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
   const cfnStage = stage.node.defaultChild as CfnStage;
   cfnStage.accessLogSetting = {
     destinationArn: log.logGroupArn,
-    format: `$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId`
+    format: AccessLogFormat.jsonWithStandardFields().toString()
   };
   cfnStage.methodSettings = [
     {
@@ -87,5 +158,16 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
     }
   ];
 
-  return { api, handler, stage, urlParam };
+  return { api, apiIdParam, arnParam, handler, stage, urlParam };
+};
+
+export const grantRemoteWs = ({ apiArn, consumers }: GrantRemoteWsOptions) => {
+  consumers.forEach((consumer) => {
+    // grantManageConnections
+    Grant.addToPrincipal({
+      actions: ['execute-api:ManageConnections'],
+      grantee: consumer,
+      resourceArns: [`${apiArn}/*/*/@connections/*`]
+    });
+  });
 };
