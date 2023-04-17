@@ -18,3 +18,4 @@ export * from './sns';
 export * from './ssm';
 export * from './stack';
 export * from './step-function';
+export * from './ws';
