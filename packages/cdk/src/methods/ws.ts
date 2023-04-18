@@ -2,13 +2,13 @@ import {
   AccessLogFormat,
   CfnAccount,
   CfnStage,
-  DomainName,
-  DomainNameProps,
   EndpointType,
   SecurityPolicy
 } from 'aws-cdk-lib/aws-apigateway';
 import {
-  ApiMapping,
+  DomainMappingOptions,
+  DomainName,
+  DomainNameProps,
   WebSocketApi,
   WebSocketApiProps,
   WebSocketStage
@@ -16,7 +16,7 @@ import {
 import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { RemovalPolicy, Stack } from 'aws-cdk-lib/core';
-import { Grant, IGrantable, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Grant, IGrantable, ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, LogRetention, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 import { DeployEnvironment, DotStack } from '../constructs/Stack';
@@ -41,6 +41,26 @@ interface GrantRemoteWsOptions {
   consumers: IGrantable[];
 }
 
+// Note: copied from https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/aws-apigateway/lib/restapi.ts#L555
+// since WebsocketApi is in alpha
+const configureCloudWatchRole = (scope: DotStack, apiResource: WebSocketApi) => {
+  const role = new Role(scope, 'CloudWatchRole', {
+    assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+    managedPolicies: [
+      ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
+    ]
+  });
+  role.applyRemovalPolicy(RemovalPolicy.RETAIN);
+
+  const cloudWatchAccount = new CfnAccount(scope, scope.resourceName('cloudwatch-role-account'), {
+    cloudWatchRoleArn: role.roleArn
+  });
+  cloudWatchAccount.applyRemovalPolicy(RemovalPolicy.RETAIN);
+  cloudWatchAccount.node.addDependency(apiResource);
+
+  return cloudWatchAccount;
+};
+
 export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
   const { deployEnv = 'prod', domain, name = '', routes = [], scope } = options;
   const baseName = DotStack.baseName(name, 'api');
@@ -57,6 +77,15 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
         securityPolicy: SecurityPolicy.TLS_1_2
       } as DomainNameProps)
     : void 0;
+  let domainMapping: DomainMappingOptions | undefined;
+
+  if (domainOptions) {
+    domainMapping = {
+      domainName: new DomainName(scope, `${apiName}-domain`, {
+        ...domainOptions
+      })
+    };
+  }
 
   const handler = addNodeFunction(options);
   const integration = new WebSocketLambdaIntegration(`${apiName}-int`, handler);
@@ -70,20 +99,13 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
   const api = new WebSocketApi(scope, apiName, apiOptions);
   const stage = new WebSocketStage(scope, `${apiName}-stage`, {
     autoDeploy: true,
+    domainMapping,
     stageName: deployEnv,
     webSocketApi: api
   });
 
-  if (domainOptions) {
-    const domainName = new DomainName(scope, `${apiName}-domain`, domainOptions);
-    const apiMapping = new ApiMapping(scope, `${apiName}-mapping`, {
-      api,
-      domainName: domainName as any,
-      stage
-    });
-
-    apiMapping.node.addDependency(domainName);
-  }
+  // Note: this turns on cloudwatch logging for APIs
+  stage.node.addDependency(configureCloudWatchRole(scope, api));
 
   // SAD: there's no way to configure the retention period AND removal for execution logs easily
   // eslint-disable-next-line no-new
@@ -121,13 +143,6 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
     name: `${scope.ssmPrefix}/url/${baseName}`,
     scope,
     value: stage.url
-  });
-
-  // eslint-disable-next-line no-new
-  new CfnAccount(scope, 'Account', {
-    // Note: This is a role that was created manually following this guide:
-    // https://aws.amazon.com/premiumsupport/knowledge-center/api-gateway-cloudwatch-logs
-    cloudWatchRoleArn: 'arn:aws:iam::389474096394:role/ApiGatewayCloudWatchRole'
   });
 
   // Note: The following log-related setup is necessary as of 2/22/22
