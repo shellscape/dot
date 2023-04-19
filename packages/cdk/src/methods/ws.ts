@@ -1,10 +1,10 @@
 import {
   AccessLogFormat,
   CfnAccount,
-  CfnStage,
   EndpointType,
   SecurityPolicy
 } from 'aws-cdk-lib/aws-apigateway';
+import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import {
   DomainMappingOptions,
   DomainName,
@@ -44,18 +44,21 @@ interface GrantRemoteWsOptions {
 // Note: copied from https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/aws-apigateway/lib/restapi.ts#L555
 // since WebsocketApi is in alpha
 const configureCloudWatchRole = (scope: DotStack, apiResource: WebSocketApi) => {
+  const roleName = scope.resourceName('cloudwatch-role');
   const role = new Role(scope, 'CloudWatchRole', {
     assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
     managedPolicies: [
       ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
-    ]
+    ],
+    roleName
   });
-  role.applyRemovalPolicy(RemovalPolicy.RETAIN);
+  role.applyRemovalPolicy(RemovalPolicy.DESTROY);
+  scope.overrideId(role, roleName);
 
   const cloudWatchAccount = new CfnAccount(scope, scope.resourceName('cloudwatch-role-account'), {
     cloudWatchRoleArn: role.roleArn
   });
-  cloudWatchAccount.applyRemovalPolicy(RemovalPolicy.RETAIN);
+  cloudWatchAccount.applyRemovalPolicy(RemovalPolicy.DESTROY);
   cloudWatchAccount.node.addDependency(apiResource);
 
   return cloudWatchAccount;
@@ -147,31 +150,32 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
 
   // Note: The following log-related setup is necessary as of 2/22/22
   // eslint-disable-next-line no-new
-  new LogGroup(scope, 'ExecutionLogs', {
+  const execLogs = new LogGroup(scope, 'ExecutionLogs', {
     logGroupName: `/aws/apigateway/${api.apiId}/${scope.env}`,
     removalPolicy: RemovalPolicy.DESTROY,
     retention: RetentionDays.ONE_WEEK
   });
 
-  const log = new LogGroup(scope, 'AccessLogs', {
+  const accessLogs = new LogGroup(scope, 'AccessLogs', {
     logGroupName: `${apiName}-access-logs`,
     removalPolicy: RemovalPolicy.DESTROY,
     retention: RetentionDays.ONE_WEEK
   });
 
+  execLogs.applyRemovalPolicy(RemovalPolicy.DESTROY);
+  accessLogs.applyRemovalPolicy(RemovalPolicy.DESTROY);
+
   const cfnStage = stage.node.defaultChild as CfnStage;
-  cfnStage.accessLogSetting = {
-    destinationArn: log.logGroupArn,
+  cfnStage.accessLogSettings = {
+    destinationArn: accessLogs.logGroupArn,
     format: AccessLogFormat.jsonWithStandardFields().toString()
   };
-  cfnStage.methodSettings = [
-    {
-      dataTraceEnabled: true,
-      loggingLevel: 'INFO',
-      throttlingBurstLimit: 500,
-      throttlingRateLimit: 1000
-    }
-  ];
+  cfnStage.defaultRouteSettings = {
+    dataTraceEnabled: true,
+    loggingLevel: 'INFO',
+    throttlingBurstLimit: 500,
+    throttlingRateLimit: 1000
+  };
 
   return { api, apiIdParam, arnParam, handler, stage, urlParam };
 };
