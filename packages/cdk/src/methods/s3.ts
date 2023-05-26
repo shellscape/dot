@@ -1,6 +1,12 @@
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import type { IDistribution } from 'aws-cdk-lib/aws-cloudfront';
-import { Bucket, BucketProps, EventType, NotificationKeyFilter } from 'aws-cdk-lib/aws-s3';
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketProps,
+  EventType,
+  NotificationKeyFilter
+} from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { S3EventSource, S3EventSourceProps } from 'aws-cdk-lib/aws-lambda-event-sources';
@@ -81,6 +87,14 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   const bucketName = scope.resourceName(baseName);
   const lifeCycleRules = [];
   const websiteIndexDocument = staticHosting ? 'index.html' : void 0;
+  const blockPublicAccess = publicReadAccess
+    ? new BlockPublicAccess({
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false
+      })
+    : void 0;
 
   log.info('Creating Bucket:', { baseName, bucketName, name });
 
@@ -96,6 +110,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
 
   const bucketProps: BucketProps = {
     autoDeleteObjects: autoDelete,
+    blockPublicAccess,
     bucketName,
     publicReadAccess,
     removalPolicy,
