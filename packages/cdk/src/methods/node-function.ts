@@ -23,7 +23,7 @@ export interface AddNodeFunctionOptions extends Omit<AddFunctionOptions, 'handle
   entryFilePath?: string;
   esbuild?: BundlingOptions;
   handlerExportName?: string;
-  hooks: ICommandHooks;
+  hooks?: ICommandHooks;
 }
 
 export const addNodeFunction = (options: AddNodeFunctionOptions) => {
