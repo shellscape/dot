@@ -23,7 +23,7 @@ export interface AddNodeFunctionOptions extends Omit<AddFunctionOptions, 'handle
   entryFilePath?: string;
   esbuild?: BundlingOptions;
   handlerExportName?: string;
-  hooks?: ICommandHooks;
+  hooks?: Partial<ICommandHooks>;
 }
 
 export const addNodeFunction = (options: AddNodeFunctionOptions) => {
@@ -44,9 +44,14 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
   const { env } = scope;
 
   const baseName = DotStack.baseName(name, 'fn');
+  const baseHooks: ICommandHooks = {
+    afterBundling: () => [],
+    beforeBundling: () => [],
+    beforeInstall: () => []
+  };
   const bundleOptions: BundlingOptions = {
     ...esbuild,
-    commandHooks: hooks,
+    commandHooks: hooks ? { ...baseHooks, ...hooks } : void 0,
     externalModules: [...(esbuild.externalModules || []), ...['pg-native']]
   };
   const fnName = scope.resourceName(baseName);
