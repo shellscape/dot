@@ -1,6 +1,11 @@
 import { Size, Duration } from 'aws-cdk-lib';
 import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
-import { BundlingOptions, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-nodejs';
+import {
+  BundlingOptions,
+  ICommandHooks,
+  NodejsFunction,
+  SourceMapMode
+} from 'aws-cdk-lib/aws-lambda-nodejs';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import chalk from 'chalk';
 
@@ -12,9 +17,13 @@ import { log } from '../log';
 import { setupFunction, AddFunctionOptions } from './function';
 
 export interface AddNodeFunctionOptions extends Omit<AddFunctionOptions, 'handlerPath'> {
+  /**
+   * Commands to run before bundling and before the lambda archive is finalized
+   */
   entryFilePath?: string;
   esbuild?: BundlingOptions;
   handlerExportName?: string;
+  hooks: ICommandHooks;
 }
 
 export const addNodeFunction = (options: AddNodeFunctionOptions) => {
@@ -25,6 +34,7 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
     environmentVariables = {},
     esbuild = {},
     handlerExportName = 'handler',
+    hooks,
     memorySize = 2000,
     name = '',
     scope,
@@ -34,8 +44,9 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
   const { env } = scope;
 
   const baseName = DotStack.baseName(name, 'fn');
-  const bundleOptions = {
+  const bundleOptions: BundlingOptions = {
     ...esbuild,
+    commandHooks: hooks,
     externalModules: [...(esbuild.externalModules || []), ...['pg-native']]
   };
   const fnName = scope.resourceName(baseName);

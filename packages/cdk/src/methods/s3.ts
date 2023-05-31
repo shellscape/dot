@@ -5,6 +5,7 @@ import {
   Bucket,
   BucketProps,
   EventType,
+  HttpMethods,
   NotificationKeyFilter
 } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
@@ -46,6 +47,7 @@ export interface AddBucketDeploymentResult {
 
 export interface AddBucketOptions {
   autoDelete?: boolean;
+  cors?: boolean;
   expireAfterDays?: number;
   handlers?: BucketEventHandlerOptions[];
   name: string;
@@ -74,6 +76,7 @@ interface GrantFullBucketAccessOptions {
 export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   const {
     autoDelete = true,
+    cors = false,
     expireAfterDays,
     handlers,
     name,
@@ -95,6 +98,15 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
         restrictPublicBuckets: false
       })
     : void 0;
+  const corsProps = cors
+    ? [
+        {
+          allowedHeaders: ['*'],
+          allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT],
+          allowedOrigins: ['*']
+        }
+      ]
+    : void 0;
 
   log.info('Creating Bucket:', { baseName, bucketName, name });
 
@@ -112,6 +124,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     autoDeleteObjects: autoDelete,
     blockPublicAccess,
     bucketName,
+    cors: corsProps,
     publicReadAccess,
     removalPolicy,
     websiteIndexDocument
