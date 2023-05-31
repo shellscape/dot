@@ -30,16 +30,16 @@
   ],
   "dependencies": {
     "@dot/log": "workspace:*",
-    "chalk": "^4.1.0",
-    "conventional-commits-parser": "^3.2.1",
-    "execa": "^5.0.0",
-    "semver": "^7.3.4",
+    "chalk": "^4.1.2",
+    "conventional-commits-parser": "^3.2.4",
+    "execa": "^5.1.1",
+    "semver": "^7.5.1",
     "write-pkg": "^4.0.0",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "@types/conventional-commits-parser": "^3.0.1",
-    "@types/semver": "^7.3.4",
+    "@types/conventional-commits-parser": "^3.0.3",
+    "@types/semver": "^7.5.0",
     "@types/yargs-parser": "^21.0.0"
   }
 }
