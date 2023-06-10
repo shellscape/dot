@@ -1,0 +1,145 @@
+/* eslint-disable sort-keys */
+
+import {
+  any,
+  array,
+  literal,
+  nonempty,
+  object,
+  optional,
+  pattern,
+  record,
+  size,
+  string,
+  union,
+  validate,
+  Infer
+} from 'superstruct';
+
+export const siftMethods = [
+  '$all',
+  '$and',
+  '$elemMatch',
+  '$eq',
+  '$exists',
+  '$gt',
+  '$gte',
+  '$in',
+  '$lt',
+  '$lte',
+  '$mod',
+  '$ne',
+  '$nin',
+  '$nor',
+  '$not',
+  '$options',
+  '$or',
+  '$regex',
+  '$size',
+  '$type',
+  '$where'
+] as const;
+
+const reConditionMethods = new RegExp(
+  `^[${siftMethods.map((name) => name.replace('$', '\\$')).join('|')}]$`
+);
+const WildcardStruct = size(array(literal('*')), 1);
+
+export const ConditionStruct = record(
+  string(),
+  record(pattern(string(), reConditionMethods), string())
+);
+
+export const ActionStruct = object({
+  // TODO: add "unique" struct
+  attributes: size(array(string()), 1, 64),
+  conditions: optional(union([WildcardStruct, size(array(ConditionStruct), 0, 64)])),
+  name: string(),
+  scope: optional(record(string(), any()))
+});
+
+// TODO: add "unique" struct
+const ActionArrayStruct = size(array(ActionStruct), 1, 64);
+
+const ResourceStruct = object({
+  name: string(),
+  actions: union([ActionArrayStruct, WildcardStruct])
+});
+
+const RoleStruct = object({
+  name: string(),
+  // TODO: add "unique" struct
+  resources: size(array(ResourceStruct), 1, 1024)
+});
+
+export const SchemaStruct = nonempty(array(RoleStruct));
+
+export type Action = Infer<typeof ActionStruct>;
+export type ConditionMethod = (typeof siftMethods)[number];
+export type Condition = Record<ConditionMethod, any>;
+export type Role = Infer<typeof RoleStruct>;
+export type Schema = Infer<typeof SchemaStruct>;
+
+export const checkSchema = (what: any) => validate(what, SchemaStruct);
+export const checkRole = (what: any) => validate(what, RoleStruct);
+
+// export const roleSchema = {
+//   type: 'object',
+//   properties: {
+//     name: { type: 'string' },
+//     resources: {
+//       type: 'array',
+//       maxItems: 1024,
+//       uniqueItems: true,
+//       items: {
+//         type: 'object',
+//         properties: {
+//           name: { type: 'string' },
+//           actions: {
+//             oneOf: [
+//               // {
+//               //   type: 'array',
+//               //   minItems: 1,
+//               //   maxItems: 1,
+//               //   items: { const: '*' }
+//               // },
+//               {
+//                 type: 'array',
+//                 // minItems: 1,
+//                 // maxItems: 64,
+//                 // uniqueItems: true,
+//                 items: {
+//                   type: 'object',
+//                   properties: {
+//                     name: { type: 'string' },
+//                     attributes: {
+//                       type: 'array',
+//                       minItems: 1,
+//                       maxItems: 64,
+//                       uniqueItems: true,
+//                       items: { type: 'string' }
+//                     },
+//                     conditions: {
+//                       type: 'array',
+//                       minItems: 0,
+//                       maxItems: 64,
+//                       uniqueItems: true,
+//                       items: { type: 'object' }
+//                     },
+//                     scope: { type: 'object' }
+//                   },
+//                   required: ['name', 'attributes'],
+//                   additionalProperties: false
+//                 }
+//               }
+//             ]
+//           }
+//         }
+//         // required: ['name', 'actions'],
+//         // additionalProperties: false
+//       }
+//     }
+//   }
+//   // required: ['name', 'resources'],
+//   // additionalProperties: false
+// };
