@@ -41,7 +41,7 @@ jobs:
       - name: Set Git Config
         run: |
           git config pull.rebase false
-          git config --global user.email "release-workflow@openbase.io"
+          git config --global user.email "release-workflow@shellscape.org"
           git config --global user.name "Release Workflow"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
@@ -55,9 +55,7 @@ jobs:
         run: pnpm install
 
       - name: Lint Repo
-        run: |
-          pnpm lint
-          git --no-pager diff
+        run: pnpm lint
 
       - name: Run Tests
         # we're running into some test timeouts for many package updates at once

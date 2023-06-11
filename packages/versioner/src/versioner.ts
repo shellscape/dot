@@ -127,21 +127,19 @@ const publish = async (cwd: string) => {
   await execa('pnpm', ['publish', '--no-git-checks'], { cwd, stdio: 'inherit' });
 };
 
-const pull = async (main: string) => {
+const pull = async () => {
+  if (dryRun || doPush === false) {
+    log.warn(chalk`{yellow Skipping Git Pull and Rebase}`);
+    return;
+  }
+
   log.info(chalk`{blue Pulling Latest Changes from Remote and Rebasing}`);
 
-  try {
-    await execa('git', ['pull', 'origin', main, '--no-edit']);
-    await execa('git', ['rebase']);
-  } catch (e) {
-    const { stdout: status } = await execa('git', ['status']);
-    const { stdout: diff } = await execa('git', ['--no-pager', 'diff']);
-    log.warn(status);
-    log.warn(diff);
+  const { stdout: branches } = await execa('git', ['branch']);
+  const main = branches.includes('main') ? 'main' : 'master';
 
-    log.error(e);
-    process.exit(1);
-  }
+  await execa('git', ['pull', 'origin', main, '--no-edit']);
+  await execa('git', ['rebase']);
 };
 
 const push = async () => {
@@ -152,9 +150,6 @@ const push = async () => {
 
   const { stdout: branches } = await execa('git', ['branch']);
   const main = branches.includes('main') ? 'main' : 'master';
-
-  await pull(main);
-
   const params = ['push', 'origin', `HEAD:${main}`];
 
   log.info(chalk`{blue Pushing Release and Tags}`);
@@ -278,6 +273,8 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
     await updatePackage(cwd, pkg, newVersion);
     updateChangelog(commits, cwd, targetName, shortName, newVersion);
     await commitChanges(cwd, shortName, newVersion);
+    // Note: We want to pull here in case there's an error, so nothing gets published
+    await pull();
     await publish(cwd);
     await tag(cwd, shortName, newVersion);
     await push();
