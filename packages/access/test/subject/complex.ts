@@ -15,7 +15,7 @@ test.before(async () => {
   permission = await acl.can(ROLES.SUPPORT, 'export', RESOURCES.ORDER);
 });
 
-test('Should return true if user can read provided resource', async (t) => {
+test('true if user can read provided resource', async (t) => {
   const ability = acl.canSubjectAccessResource(permission, USERS[0], ORDERS[1]);
 
   t.is(ability, true);

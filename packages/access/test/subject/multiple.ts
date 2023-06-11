@@ -15,13 +15,13 @@ test.before(async () => {
   permission = await acl.can(ROLES.SUPPORT, 'read', RESOURCES.PRODUCT);
 });
 
-test('Should return true if user can read provided resource according to role conditions', async (t) => {
+test('true if user can read provided resource according to role conditions', async (t) => {
   const ability = acl.canSubjectAccessResource(permission, USERS[0], PRODUCTS[0]);
 
   t.is(ability, true);
 });
 
-test('Should return false if user can not read provided resource according to role conditions', async (t) => {
+test('false if user can not read provided resource according to role conditions', async (t) => {
   const ability = acl.canSubjectAccessResource(permission, USERS[1], PRODUCTS[0]);
 
   t.is(ability, false);

@@ -1,5 +1,7 @@
 /* eslint-disable sort-keys */
 
+import type { Role } from '../../src/structs';
+
 import { RESOURCES } from './resources';
 
 export const ROLES = {
@@ -8,7 +10,7 @@ export const ROLES = {
   SUPPORT: 'support'
 };
 
-export const Roles = [
+export const Roles: Role[] = [
   {
     name: ROLES.ADMINISTRATOR,
     resources: [

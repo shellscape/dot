@@ -3,6 +3,7 @@
 import {
   any,
   array,
+  assert,
   literal,
   nonempty,
   object,
@@ -12,7 +13,6 @@ import {
   size,
   string,
   union,
-  validate,
   Infer
 } from 'superstruct';
 
@@ -41,18 +41,20 @@ export const siftMethods = [
 ] as const;
 
 const reConditionMethods = new RegExp(
-  `^[${siftMethods.map((name) => name.replace('$', '\\$')).join('|')}]$`
+  `^(${siftMethods.map((name) => name.replace('$', '\\$')).join('|')})$`
 );
 const WildcardStruct = size(array(literal('*')), 1);
 
 export const ConditionStruct = record(
   string(),
-  record(pattern(string(), reConditionMethods), string())
+  record(pattern(string(), reConditionMethods), any())
 );
+
+export const AttributesStruct = size(array(string()), 1, 64);
 
 export const ActionStruct = object({
   // TODO: add "unique" struct
-  attributes: size(array(string()), 1, 64),
+  attributes: AttributesStruct,
   conditions: optional(union([WildcardStruct, size(array(ConditionStruct), 0, 64)])),
   name: string(),
   scope: optional(record(string(), any()))
@@ -61,12 +63,12 @@ export const ActionStruct = object({
 // TODO: add "unique" struct
 const ActionArrayStruct = size(array(ActionStruct), 1, 64);
 
-const ResourceStruct = object({
+export const ResourceStruct = object({
   name: string(),
   actions: union([ActionArrayStruct, WildcardStruct])
 });
 
-const RoleStruct = object({
+export const RoleStruct = object({
   name: string(),
   // TODO: add "unique" struct
   resources: size(array(ResourceStruct), 1, 1024)
@@ -76,12 +78,13 @@ export const SchemaStruct = nonempty(array(RoleStruct));
 
 export type Action = Infer<typeof ActionStruct>;
 export type ConditionMethod = (typeof siftMethods)[number];
-export type Condition = Record<ConditionMethod, any>;
+export type Condition = Record<string, { [key in ConditionMethod]?: any }>;
+export type Resource = Infer<typeof ResourceStruct>;
 export type Role = Infer<typeof RoleStruct>;
 export type Schema = Infer<typeof SchemaStruct>;
 
-export const checkSchema = (what: any) => validate(what, SchemaStruct);
-export const checkRole = (what: any) => validate(what, RoleStruct);
+export const checkSchema = (what: any) => assert(what, SchemaStruct);
+export const checkRole = (what: any) => assert(what, RoleStruct);
 
 // export const roleSchema = {
 //   type: 'object',
