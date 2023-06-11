@@ -129,8 +129,17 @@ const publish = async (cwd: string) => {
 
 const pull = async (main: string) => {
   log.info(chalk`{blue Pulling Latest Changes from Remote and Rebasing}`);
-  await execa('git', ['pull', 'origin', main, '--no-edit']);
-  await execa('git', ['rebase']);
+
+  try {
+    await execa('git', ['pull', 'origin', main, '--no-edit']);
+    await execa('git', ['rebase']);
+  } catch (e) {
+    const { stdout: status } = await execa('git', ['status']);
+    log.warn(status);
+
+    log.error(e);
+    process.exit(1);
+  }
 };
 
 const push = async () => {
