@@ -8,7 +8,7 @@
     "lint:json": "prettier --write .github/**/*.yml **/tsconfig.json **/tsconfig.*.json pnpm-workspace.yaml",
     "lint:package": "prettier --write **/package.json",
     "package:build": "r(){ cd $1; ln -s ../../shared/tsconfig.packages.json tsconfig.json; tsc --project tsconfig.json; rm tsconfig.json; }; r",
-    "package:release": "versioner --target",
+    "package:release": "pnpm exec versioner --target",
     "prepare": "husky install",
     "security": "pnpm audit --audit-level=high"
   },

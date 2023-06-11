@@ -1,0 +1,60 @@
+{
+  "name": "@dot/access",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "An Attribute-Role-Based Hybrid Access Control Library",
+  "license": "MIT",
+  "repository": "shellscape/dot",
+  "author": "shellscape",
+  "homepage": "https://github.com/shellscape/dot",
+  "bugs": "https://github.com/shellscape/dot/issues",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm -w package:build $PWD",
+    "coverage": "nyc pnpm run test && nyc report --reporter=text-lcov > coverage.lcov",
+    "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
+    "prepublishOnly": "pnpm build",
+    "prerelease": "pnpm build",
+    "pretest": "pnpm build",
+    "release": "pnpm --workspace-root package:release $(pwd)",
+    "test": "FORCE_COLOR=2 ava"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "abac",
+    "access",
+    "access control",
+    "auth",
+    "authorization",
+    "permissions",
+    "rbac",
+    "roles"
+  ],
+  "dependencies": {
+    "floppy-filter": "^1.0.17",
+    "is-plain-obj": "3.0.0",
+    "lodash.difference": "^4.5.0",
+    "lodash.filter": "^4.6.0",
+    "lodash.get": "^4.4.2",
+    "lodash.intersection": "^4.4.0",
+    "lodash.union": "^4.6.0",
+    "sift": "^16.0.1",
+    "superstruct": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.195",
+    "@types/lodash.difference": "^4.5.7",
+    "@types/lodash.filter": "^4.6.7",
+    "@types/lodash.get": "^4.4.7",
+    "@types/lodash.intersection": "^4.4.7",
+    "@types/lodash.union": "^4.6.7"
+  }
+}
