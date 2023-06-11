@@ -45,6 +45,7 @@ export const getSsmValue = async (path: string) => {
     if (result) log.debug('Parameter Found:', result.Value?.replace(/.(?=.{4})/g, '*'));
     else log.debug('Parameter Not Found');
 
+    // @ts-ignore
     return result!.Value;
   } catch (error) {
     log.error('SSM Error:', error);
