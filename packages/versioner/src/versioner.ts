@@ -1,3 +1,5 @@
+import 'source-map-support';
+
 import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
@@ -10,16 +12,12 @@ import writePackage from 'write-pkg';
 import yargs from 'yargs-parser';
 
 const argv = yargs(process.argv.slice(2));
-const log = getLog({ brand: '@dot', name: '\u001b[1D/repo' });
+const { dry: dryRun, publish: doPublish, push: doPush, tag: doTag } = argv;
+const log = getLog({ brand: '@dot', name: '\u001b[1D/versioner' });
 const parserOptions = {
   noteKeywords: ['BREAKING CHANGE', 'Breaking Change']
 };
 const reBreaking = new RegExp(`(${parserOptions.noteKeywords.join(')|(')})`);
-// FIXME: use argv from above here
-const dryRun = process.argv.includes('--dry');
-const noPublish = process.argv.includes('--no-publish');
-const noPush = process.argv.includes('--no-push');
-const noTag = process.argv.includes('--no-tag');
 
 type Commit = parser.Commit<string | number | symbol>;
 
@@ -41,8 +39,10 @@ interface RepoPackage {
 }
 
 const commitChanges = async (cwd: string, shortName: string, version: string) => {
+  const commitMessage = `chore(release): ${shortName} v${version}`;
+
   if (dryRun) {
-    log.warn(chalk`{yellow Skipping Git Commit}`);
+    log.warn(chalk`{yellow Skipping Git Commit}: ${commitMessage}`);
     return;
   }
 
@@ -50,7 +50,7 @@ const commitChanges = async (cwd: string, shortName: string, version: string) =>
   let params = ['add', cwd];
   await execa('git', params);
 
-  params = ['commit', '--m', `chore(release): ${shortName} v${version}`];
+  params = ['commit', '--m', commitMessage];
   await execa('git', params);
 };
 
@@ -117,7 +117,7 @@ const getNewVersion = (version: string, commits: Commit[]): string | null => {
 };
 
 const publish = async (cwd: string) => {
-  if (dryRun || noPublish) {
+  if (dryRun || doPublish === false) {
     log.warn(chalk`{yellow Skipping Publish}`);
     return;
   }
@@ -134,7 +134,7 @@ const pull = async (main: string) => {
 };
 
 const push = async () => {
-  if (dryRun || noPush) {
+  if (dryRun || doPush === false) {
     log.warn(chalk`{yellow Skipping Git Push}`);
     return;
   }
@@ -152,13 +152,14 @@ const push = async () => {
 };
 
 const tag = async (cwd: string, shortName: string, version: string) => {
-  if (dryRun || noTag) {
-    log.info(chalk`{yellow Skipping Git Tag}`);
+  const prefix = `${shortName}-`;
+  const tagName = `${prefix}v${version}`;
+
+  if (dryRun || doTag === false) {
+    log.warn(chalk`{yellow Skipping Git Tag}: ${tagName}`);
     return;
   }
 
-  const prefix = `${shortName}-`;
-  const tagName = `${prefix}v${version}`;
   log.info(chalk`\n{blue Tagging} {grey ${tagName}}`);
   await execa('git', ['tag', tagName], { cwd, stdio: 'inherit' });
 };
@@ -232,6 +233,7 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
   try {
     const cwd = argv.target;
     const stripScope = argv.stripScope?.split(',') || [];
+
     const { name: targetName } = await import(join(cwd, 'package.json'));
     const shortName = targetName.replace(/^@.+\//, '');
     const parentDirName = dirname(resolve(cwd, '..'));

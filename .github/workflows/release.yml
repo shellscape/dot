@@ -1,0 +1,65 @@
+name: Release Packages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    if: |
+      !startsWith(github.event.head_commit.message, 'chore(release):') &&
+      !startsWith(github.event.head_commit.message, 'chore(repo):')
+
+    runs-on: ubuntu-latest
+
+    name: release
+
+    steps:
+      - name: Checkout Commit
+        uses: actions/checkout@v1
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+
+      - name: Checkout Master
+        run: |
+          git branch -f master origin/master
+          git checkout master
+
+      - name: Sanity Check
+        run: |
+          echo branch `git branch --show-current`;
+          echo node `node -v`;
+          echo pnpm `pnpm -v`
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: Set Git Config
+        run: |
+          git config pull.rebase false
+          git config --global user.email "release-workflow@openbase.io"
+          git config --global user.name "Release Workflow"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+      - name: pnpm install
+        run: pnpm install
+
+      - name: Build All Packages
+        run: pnpm -r build
+
+      - name: Lint Repo
+        run: pnpm lint
+
+      - name: Run Tests
+        # we're running into some test timeouts for many package updates at once
+        # this should keep the process memory usage reasonable
+        run: pnpm --filter [HEAD^] --workspace-concurrency=1 test
+
+      - name: Release and Publish Changed Packages
+        run: pnpm --filter [HEAD^] --workspace-concurrency=1 release
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

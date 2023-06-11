@@ -21,7 +21,7 @@
     "prepublishOnly": "pnpm build",
     "prerelease": "pnpm build",
     "pretest": "pnpm build",
-    "release": "pnpm --workspace-root package:release $npm_package_name",
+    "release": "pnpm --workspace-root package:release $(pwd)",
     "test": "FORCE_COLOR=2 ava"
   },
   "files": [
