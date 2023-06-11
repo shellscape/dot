@@ -55,7 +55,9 @@ jobs:
         run: pnpm install
 
       - name: Lint Repo
-        run: pnpm lint
+        run: |
+          pnpm lint
+          git --no-pager diff
 
       - name: Run Tests
         # we're running into some test timeouts for many package updates at once

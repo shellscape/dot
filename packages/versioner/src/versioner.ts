@@ -135,7 +135,9 @@ const pull = async (main: string) => {
     await execa('git', ['rebase']);
   } catch (e) {
     const { stdout: status } = await execa('git', ['status']);
+    const { stdout: diff } = await execa('git', ['--no-pager', 'diff']);
     log.warn(status);
+    log.warn(diff);
 
     log.error(e);
     process.exit(1);
