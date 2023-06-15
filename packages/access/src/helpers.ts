@@ -3,16 +3,88 @@ import floppyFilter from 'floppy-filter';
 import isPlainObject from 'is-plain-obj';
 import get from 'lodash.get';
 
-import { Dict } from './types';
+import { ALL, Condition, Dict } from './types';
 import { Permission } from './Permission';
 
 const objectPrefix = 'resource.';
 const subjectPrefix = 'subject.';
 
 const isDate = (what: any) => what instanceof Date && !isNaN(what as any);
+const isEmpty = (what: any) => !Object.keys(what || {}).length;
 const isFunction = (what: any) => typeof what === 'function';
 const isRegExp = (what: any) => what instanceof RegExp;
 export const isString = (what: any) => typeof what === 'string';
+
+export const difference = <TArray>(first: TArray[], second: TArray[]) =>
+  first.filter((value) => !second.includes(value));
+const intersection = <TArray>(array: TArray[], ...args: TArray[][]) =>
+  array.filter((item) => args.every((arr) => arr.includes(item)));
+export const union = <TArray>(array: TArray[], ...args: TArray[][]) => [
+  ...new Set(array.concat(...args))
+];
+
+export const merge = (existing: string[], incoming: string[]): string[] => {
+  const existingIsAll = existing[0] === ALL;
+  const incomingIsAll = incoming[0] === ALL;
+
+  if (!incomingIsAll && !existingIsAll) {
+    const combined = union(incoming, existing).filter(
+      (item) => item != null && !item.startsWith('!')
+    );
+
+    return [...combined];
+  }
+
+  if (incomingIsAll && existingIsAll) {
+    const negated = intersection(incoming, existing).filter(
+      (item) => item != null && !item.startsWith('!')
+    );
+
+    return [...negated];
+  }
+
+  if (incomingIsAll || existingIsAll) {
+    const negated = union(incoming, existing).filter(
+      (item: string) => item != null && !item.startsWith('!')
+    );
+
+    return [...negated];
+  }
+
+  return [];
+};
+
+export const mergeAttributes = (existing: string[], incoming: string[]): string[] => {
+  const existingIsAll = incoming.length === 1 && incoming[0] === ALL;
+  const incomingIsAll = existing.length === 1 && existing[0] === ALL;
+
+  if (incomingIsAll) return existing;
+  if (existingIsAll) {
+    // If action or cached actions = ['*'] then, no need to merge
+    // We take the most permissive attributes
+    return [ALL];
+  }
+
+  return merge(existing || [], incoming || []);
+};
+
+export const mergeConditions = (existing: Condition[], incoming: Condition[]): Condition[] => {
+  const existingIsEmpty = isEmpty(existing);
+
+  if (isEmpty(incoming) && !existingIsEmpty) return [] as any;
+  if (!existingIsEmpty) return [...existing, ...incoming];
+
+  return [] as any;
+};
+
+export const mergeScope = <TScope extends {}>(existing: TScope, incoming: TScope): TScope => {
+  const existingIsEmpty = isEmpty(existing);
+
+  if (isEmpty(incoming) && !existingIsEmpty) return {} as TScope;
+  if (!existingIsEmpty) return { ...existing, ...incoming };
+
+  return {} as TScope;
+};
 
 /**
  * Check for prefix ["subject", "resource"] within string and substitute it
@@ -90,7 +162,7 @@ export const parseCondition = (condition: Dict, subject: Dict, resource: Dict) =
  * @param {Dict} resource Resource object
  * @returns {boolean}
  */
-export const canSubjectAccessResource = (
+export const canAccessResource = (
   permission: Permission,
   subject: Dict,
   resource: Dict
@@ -104,7 +176,7 @@ export const canSubjectAccessResource = (
     }
 
     for (let i = 0; i < conditions.length; i += 1) {
-      const condition = conditions[i] as Record<string, any>;
+      const condition = (conditions as Condition[])[i] as Record<string, any>;
       try {
         if (!isPlainObject<any>(condition)) {
           throw new RangeError('Condition must be an object');

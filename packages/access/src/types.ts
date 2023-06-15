@@ -10,14 +10,16 @@ type FixedLengthArray<T extends any[]> = Pick<T, Exclude<keyof T, ArrayLengthMut
   [Symbol.iterator]: () => IterableIterator<ArrayItems<T>>;
 };
 
+export const ALL = '*';
 export type Condition = BaseCondition;
+export type Conditions = FixedLengthArray<['*']> | Record<string, Condition>[];
 
 export interface Dict {
   [key: string]: any;
 }
 
 export interface Action extends Pick<Infer<typeof ActionStruct>, 'attributes' | 'name' | 'scope'> {
-  conditions?: FixedLengthArray<['*']> | Record<string, Condition>[];
+  conditions?: Conditions;
 }
 
 export interface Resource {

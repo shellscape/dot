@@ -2,25 +2,24 @@
 
 import test from 'ava';
 
-import { DotAccess, MemoryAdapter } from '../src';
+import { Access, MemoryStore } from '../src';
 
 import { Roles, ROLES, RESOURCES } from './fixtures';
 
-const adapter = new MemoryAdapter(Roles as any[]);
-const acl = new DotAccess(adapter);
+const store = new MemoryStore(Roles as any[]);
+const acl = new Access({ store });
 
 test('can', async (t) => {
   const actionName = 'update';
   const resourceName = RESOURCES.ORDER;
   const roleName = ROLES.SUPPORT;
-  const result = await acl.can(roleName, actionName, resourceName);
+  const result = await acl.can({ role: roleName, action: actionName, resource: resourceName });
 
   t.snapshot(result);
 
-  const { access, granted } = result;
-  const { action, resource } = access;
+  const { action, resource, granted } = result;
 
-  t.is(action, actionName);
-  t.is(resource, resourceName);
+  t.is(action?.name, actionName);
+  t.is(resource?.name, resourceName);
   t.is(granted, true);
 });

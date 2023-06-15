@@ -2,27 +2,25 @@
 
 import test from 'ava';
 
-import { Action, Role, DotAccess, MemoryAdapter } from '../src';
+import { Action, Access, MemoryStore } from '../src';
 
 import { Roles, ROLES, RESOURCES } from './fixtures';
 
-const adapter = new MemoryAdapter(Roles as any[]);
-const acl = new DotAccess(adapter);
+const store = new MemoryStore(Roles as any[]);
+const acl = new Access({ store });
 
 test('overlap', async (t) => {
   const roleName = [ROLES.ADMINISTRATOR, ROLES.OPERATION];
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can(roleName, actionName, resourceName);
-  const { access, granted, grants } = result;
-  const { action, resource, roles } = access;
+  const result = await acl.can({ role: roleName, action: actionName, resource: resourceName });
+  const { action, resource, roles, granted, grants } = result;
   const resources: { [k: string]: any } = {};
-  const namedRoles = acl.adapter.getRolesByName(roleName) as Role[];
+  const namedRoles = acl.store.getRolesByName(roleName);
 
   t.is(granted, true);
-
-  t.is(action, actionName);
-  t.is(resource, resourceName);
+  t.is(action?.name, actionName);
+  t.is(resource?.name, resourceName);
 
   // expect(roles).to.be.an('array').to.be.eql(roleName);
   t.snapshot(roles);
@@ -40,12 +38,13 @@ test('overlap', async (t) => {
 test('result object with merged (union) actions inside resource', async (t) => {
   const roleName = [ROLES.ADMINISTRATOR, ROLES.OPERATION];
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], 'read', RESOURCES.PRODUCT);
-
-  const {
-    grants: { [resourceName]: gResource }
-  } = result;
-  const roles = acl.adapter.getRolesByName(roleName) as Role[];
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: 'read',
+    resource: RESOURCES.PRODUCT
+  });
+  const grantedResouce = result.grants?.get(resourceName);
+  const roles = acl.store.getRolesByName(roleName);
   const actions: { [k: string]: any } = {};
 
   roles.forEach((role) => {
@@ -60,46 +59,43 @@ test('result object with merged (union) actions inside resource', async (t) => {
 
   // expect(gResource).to.be.an('object').with.all.keys(Object.keys(actions));
   t.snapshot(actions);
-  t.snapshot(gResource);
+  t.snapshot(grantedResouce);
 });
 
 test('result object with the most permissive action applied', async (t) => {
-  const result = await acl.can(
-    [ROLES.ADMINISTRATOR, ROLES.OPERATION],
-    'read',
-    RESOURCES.CONFIGURATION
-  );
-
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: 'read',
+    resource: RESOURCES.CONFIGURATION
+  });
   const { granted, grants } = result;
-  const { [RESOURCES.CONFIGURATION]: resource } = grants;
+  const resource = grants?.get(RESOURCES.CONFIGURATION);
 
   t.is(granted, true);
-  t.is(resource, '*');
+  t.deepEqual(resource?.actions, ['*']);
 });
 
 test('result object with the most permissive action applied and granted access to custom action', async (t) => {
-  const result = await acl.can(
-    [ROLES.ADMINISTRATOR, ROLES.OPERATION],
-    'print',
-    RESOURCES.CONFIGURATION
-  );
-
-  const { granted, grants } = result;
-  const { [RESOURCES.CONFIGURATION]: resource } = grants;
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: 'print',
+    resource: RESOURCES.CONFIGURATION
+  });
+  const { action, granted } = result;
 
   t.is(granted, true);
-  t.is(resource, '*');
+  t.snapshot(action);
 });
 
 test('result object with all allowed attributes in action - all attributes', async (t) => {
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  // const RESULT = ['*', '!history'];
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: actionName,
+    resource: resourceName
+  });
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -115,11 +111,12 @@ test('result object with all allowed attributes in action - all attributes', asy
 test('result object with all allowed attributes in action - filtered all attributes', async (t) => {
   const actionName = 'create';
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: actionName,
+    resource: resourceName
+  });
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -135,12 +132,12 @@ test('result object with all allowed attributes in action - filtered all attribu
 test('result object with all allowed attributes in action - projected attributes', async (t) => {
   const actionName = 'update';
   const resourceName = RESOURCES.ORDER;
-  // const RESULT = ['status', 'items', 'delivery'];
-  const result = await acl.can([ROLES.OPERATION, ROLES.SUPPORT], actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const result = await acl.can({
+    role: [ROLES.OPERATION, ROLES.SUPPORT],
+    action: actionName,
+    resource: resourceName
+  });
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -156,12 +153,13 @@ test('result object with all allowed attributes in action - projected attributes
 test('result object with all allowed attributes in action - mixed attributes', async (t) => {
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  // const RESULT = ['*', '!history'];
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], actionName, resourceName);
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: actionName,
+    resource: resourceName
+  });
 
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -177,12 +175,12 @@ test('result object with all allowed attributes in action - mixed attributes', a
 test('result object with all allowed attributes in action - negated attributes', async (t) => {
   const actionName = 'update';
   const resourceName = RESOURCES.PRODUCT;
-  // const RESULT = ['*', '!history'];
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: actionName,
+    resource: resourceName
+  });
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -198,11 +196,12 @@ test('result object with all allowed attributes in action - negated attributes',
 test('result object with the most permissive conditions applied', async (t) => {
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: actionName,
+    resource: resourceName
+  });
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -219,12 +218,9 @@ test('result object with all conditions merged', async (t) => {
   const roleName = [ROLES.OPERATION, ROLES.SUPPORT];
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can(roleName, actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
-  const roles = acl.adapter.getRolesByName(roleName) as Role[];
+  const result = await acl.can({ role: roleName, action: actionName, resource: resourceName });
+  const resource = result.grants?.get(resourceName);
+  const roles = acl.store.getRolesByName(roleName);
   const conditions: any[] = [];
 
   roles.forEach((role) => {
@@ -258,11 +254,12 @@ test('result object with all conditions merged', async (t) => {
 test('result object with the most permissive scope applied', async (t) => {
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can([ROLES.ADMINISTRATOR, ROLES.OPERATION], actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
+  const result = await acl.can({
+    role: [ROLES.ADMINISTRATOR, ROLES.OPERATION],
+    action: actionName,
+    resource: resourceName
+  });
+  const resource = result.grants?.get(resourceName);
   // expect(resource)
   //   .to.be.an('object')
   //   .with.ownProperty(actionName)
@@ -279,12 +276,9 @@ test('result object with all scopes merged', async (t) => {
   const roleName = [ROLES.OPERATION, ROLES.SUPPORT];
   const actionName = 'read';
   const resourceName = RESOURCES.PRODUCT;
-  const result = await acl.can(roleName, actionName, resourceName);
-
-  const {
-    grants: { [resourceName]: resource }
-  } = result;
-  const roles = acl.adapter.getRolesByName(roleName) as Role[];
+  const result = await acl.can({ role: roleName, action: actionName, resource: resourceName });
+  const resource = result.grants?.get(resourceName);
+  const roles = acl.store.getRolesByName(roleName);
   const scope: any = {};
 
   roles.forEach((role) => {

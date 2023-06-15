@@ -45,17 +45,18 @@ const reConditionMethods = new RegExp(
 );
 const WildcardStruct = size(array(literal('*')), 1);
 
-export const ConditionStruct = record(
+export const ConditionStruct = union([
   string(),
-  record(pattern(string(), reConditionMethods), any())
-);
+  record(string(), record(pattern(string(), reConditionMethods), any()))
+]);
+export const ConditionsStruct = union([WildcardStruct, size(array(ConditionStruct), 0, 64)]);
 
 export const AttributesStruct = size(array(string()), 1, 64);
 
 export const ActionStruct = object({
   // TODO: add "unique" struct
   attributes: AttributesStruct,
-  conditions: optional(union([WildcardStruct, size(array(ConditionStruct), 0, 64)])),
+  conditions: optional(ConditionsStruct),
   name: string(),
   scope: optional(record(string(), any()))
 });
@@ -77,8 +78,10 @@ export const RoleStruct = object({
 export const SchemaStruct = nonempty(array(RoleStruct));
 
 export type Action = Infer<typeof ActionStruct>;
+export type Attributes = Infer<typeof AttributesStruct>;
 export type ConditionMethod = (typeof siftMethods)[number];
 export type Condition = Record<string, { [key in ConditionMethod]?: any }>;
+export type Conditions = Infer<typeof ConditionsStruct>;
 export type Resource = Infer<typeof ResourceStruct>;
 export type Role = Infer<typeof RoleStruct>;
 export type Schema = Infer<typeof SchemaStruct>;

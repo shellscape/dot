@@ -39,22 +39,18 @@
     "roles"
   ],
   "dependencies": {
+    "@dot/log": "workspace:*",
+    "chalk": "^4.1.2",
     "floppy-filter": "^1.0.17",
     "is-plain-obj": "3.0.0",
-    "lodash.difference": "^4.5.0",
-    "lodash.filter": "^4.6.0",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
-    "lodash.intersection": "^4.4.0",
-    "lodash.union": "^4.6.0",
     "sift": "^16.0.1",
     "superstruct": "^1.0.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
-    "@types/lodash.difference": "^4.5.7",
-    "@types/lodash.filter": "^4.6.7",
-    "@types/lodash.get": "^4.4.7",
-    "@types/lodash.intersection": "^4.4.7",
-    "@types/lodash.union": "^4.6.7"
+    "@types/lodash.clonedeep": "^4.5.7",
+    "@types/lodash.get": "^4.4.7"
   }
 }

@@ -1,56 +1,64 @@
-import { canSubjectAccessResource, filter } from './helpers';
+import { canAccessResource, filter } from './helpers';
 
 import { Dict } from './types';
-import { Access, IAccessInfo } from './Access';
+import type { Action, Conditions, Resource, Role } from './structs';
+import { Attributes } from './structs';
 
 export interface PermissionOptions {
-  access: IAccessInfo;
-  attributes?: Array<string>;
-  conditions?: Array<Dict>;
+  action: Action | null;
+  attributes?: Attributes;
+  conditions?: Conditions;
   granted: boolean;
-  grants?: Dict;
+  grants?: Map<string, Resource>;
+  resource: Resource | null;
+  roles: Role[];
   scope?: Dict;
 }
 
+const defaults = {
+  attributes: [],
+  conditions: [],
+  grants: {},
+  scope: {}
+};
+
 export class Permission {
-  private readonly _granted: boolean;
-  private readonly _access: Access;
-  private readonly _grants: Dict;
-  private readonly _attributes: Array<string>;
-  private readonly _conditions: Array<Dict>;
-  private readonly _scope: Dict;
+  private readonly options: PermissionOptions;
 
-  constructor(permission: PermissionOptions) {
-    this._granted = permission.granted;
-    this._access = new Access(permission.access);
-    this._grants = permission.grants || {};
-    this._attributes = permission.attributes || [];
-    this._conditions = permission.conditions || [];
-    this._scope = permission.scope || {};
+  constructor(options: PermissionOptions) {
+    this.options = Object.assign({}, defaults, options);
   }
 
-  get granted(): boolean {
-    return this._granted;
+  get action() {
+    return this.options.action;
   }
 
-  get access(): Access {
-    return this._access;
+  get attributes() {
+    return this.options.attributes;
   }
 
-  get grants(): Dict {
-    return this._grants;
+  get conditions() {
+    return this.options.conditions;
   }
 
-  get attributes(): Array<string> {
-    return this._attributes;
+  get granted() {
+    return this.options.granted;
   }
 
-  get conditions(): Array<Dict> {
-    return this._conditions;
+  get grants() {
+    return this.options.grants;
   }
 
-  get scope(): Dict {
-    return this._scope;
+  get resource() {
+    return this.options.resource;
+  }
+
+  get roles() {
+    return this.options.roles;
+  }
+
+  get scope() {
+    return this.options.scope;
   }
 
   /**
@@ -60,8 +68,8 @@ export class Permission {
    * @param {Dict} object Resource object
    * @returns {Promise<boolean>}
    */
-  canSubjectAccessResource(subject: Dict, object: Dict): boolean {
-    return canSubjectAccessResource(this, subject, object);
+  canAccess(subject: Dict, resource: Dict): boolean {
+    return canAccessResource(this, subject, resource);
   }
 
   /**
