@@ -80,7 +80,10 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   const aggregate = new ecsPatterns.ApplicationLoadBalancedFargateService(scope, serviceName, {
     assignPublicIp: true,
     certificate,
-    circuitBreaker: { rollback: true },
+    // Note: Enabling this causes a "service already exists" error because we use set service names.
+    // https://github.com/aws/aws-cdk/pull/22467 was supposed to fix that, but it doesn't work. we
+    // probably have an additional condition causing problems that the fix doesn't address
+    // circuitBreaker: { rollback: true },
     cpu,
     desiredCount: desiredInstances,
     loadBalancerName: `${serviceName}-lb`,
