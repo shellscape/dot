@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.8.1
+
+_2023-07-16_
+
+### Bugfixes
+
+- fix: disable circuit breaker due to set service name use (389efdb)
+
 ## v3.8.0
 
 _2023-07-16_
