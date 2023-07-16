@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.8.0
+
+_2023-07-16_
+
+### Features
+
+- feat: use circuit braker for fargate, update deps (aae7049)
+
 ## v0.1.3
 
 _2023-01-24_
