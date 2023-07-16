@@ -80,6 +80,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   const aggregate = new ecsPatterns.ApplicationLoadBalancedFargateService(scope, serviceName, {
     assignPublicIp: true,
     certificate,
+    circuitBreaker: { rollback: true },
     cpu,
     desiredCount: desiredInstances,
     loadBalancerName: `${serviceName}-lb`,
