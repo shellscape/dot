@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.9.0
+
+_2023-09-13_
+
+### Features
+
+- feat: addBus, addRule (f3890f4)
+
 ## v3.8.1
 
 _2023-07-16_
