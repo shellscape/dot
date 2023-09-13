@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.9.1
+
+_2023-09-13_
+
+### Updates
+
+- chore: update dependencies (612065c)
+
 ## v3.9.0
 
 _2023-09-13_
