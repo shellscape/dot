@@ -1,13 +1,32 @@
-import { Duration } from 'aws-cdk-lib';
-import { CronOptions, IRuleTarget, Rule, RuleTargetInput, Schedule } from 'aws-cdk-lib/aws-events';
-import { LambdaFunction as LambdaTarget } from 'aws-cdk-lib/aws-events-targets';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import {
+  CronOptions,
+  EventBus,
+  IRuleTarget,
+  Rule,
+  RuleTargetInput,
+  Schedule
+} from 'aws-cdk-lib/aws-events';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { LambdaFunction as LambdaTarget, SqsQueue } from 'aws-cdk-lib/aws-events-targets';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 
 import { DotStack } from '../constructs/Stack';
 
 import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
+import { addParam } from './ssm';
 
 export type CronExpression = string;
+
+export interface AddBusOptions {
+  name?: string;
+  scope: DotStack;
+}
+
+interface AddBusResult {
+  bus: EventBus;
+  param: ReturnType<typeof addParam>;
+}
 
 export interface AddCronOptions {
   cron?: CronOptions | CronExpression;
@@ -22,6 +41,33 @@ interface AddCronResult {
   handler: Function;
   rule: Rule;
 }
+
+interface AddRuleOptions {
+  bus?: EventBus;
+  busName?: string;
+  eventName: string;
+  name?: string;
+  queue?: Queue;
+  queueArn?: string;
+  scope: DotStack;
+}
+
+export const addBus = (options: AddBusOptions): AddBusResult => {
+  const { name = '', scope } = options;
+  const baseName = DotStack.baseName(name, 'bus');
+  const eventBusName = scope.resourceName(baseName);
+  const bus = new EventBus(scope, eventBusName, { eventBusName });
+  const param = addParam({
+    id: `${eventBusName}-url`,
+    name: `${scope.ssmPrefix}/arn/${baseName}`,
+    scope,
+    value: bus.eventBusArn
+  });
+
+  scope.overrideId(bus, eventBusName);
+
+  return { bus, param };
+};
 
 /**
  * @description Adds a new Rule to the stack, which executes a lambda function on a periodic
@@ -52,4 +98,32 @@ export const addCron = (options: AddCronOptions): AddCronResult => {
   scope.overrideId(rule, cronName);
 
   return { handler: cronHandler, rule };
+};
+
+export const addRule = (options: AddRuleOptions) => {
+  const { bus, busName, eventName, name = '', scope, queue, queueArn } = options;
+
+  if (!bus && !busName)
+    throw new RangeError('`addRule` requires either `bus` or `busName` option to be passed');
+
+  const eventBus = bus || EventBus.fromEventBusName(scope, 'events-bus-from-name', busName!);
+  const ruleName = scope.resourceName(DotStack.baseName(name, 'rule'));
+  const rule = new Rule(scope, ruleName, {
+    eventBus,
+    eventPattern: {
+      detailType: [eventName]
+    }
+  });
+
+  scope.overrideId(rule, ruleName);
+
+  if (queue || queueArn) {
+    const targetQueue = queue || Queue.fromQueueArn(scope, 'rule-queue-from-arn', queueArn!);
+    const target = new SqsQueue(targetQueue);
+    rule.addTarget(target);
+  }
+
+  rule.applyRemovalPolicy(RemovalPolicy.DESTROY);
+
+  return rule;
 };
