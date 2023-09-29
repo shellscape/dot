@@ -106,7 +106,8 @@ export const addRule = (options: AddRuleOptions) => {
   if (!bus && !busName)
     throw new RangeError('`addRule` requires either `bus` or `busName` option to be passed');
 
-  const eventBus = bus || EventBus.fromEventBusName(scope, 'events-bus-from-name', busName!);
+  const eventBus =
+    bus || EventBus.fromEventBusName(scope, `events-bus-from-name-${Date.now()}`, busName!);
   const ruleName = scope.resourceName(DotStack.baseName(name, 'rule'));
   const rule = new Rule(scope, ruleName, {
     eventBus,
@@ -118,7 +119,8 @@ export const addRule = (options: AddRuleOptions) => {
   scope.overrideId(rule, ruleName);
 
   if (queue || queueArn) {
-    const targetQueue = queue || Queue.fromQueueArn(scope, 'rule-queue-from-arn', queueArn!);
+    const targetQueue =
+      queue || Queue.fromQueueArn(scope, `rule-queue-from-arn-${Date.now()}`, queueArn!);
     const target = new SqsQueue(targetQueue);
     rule.addTarget(target);
   }
