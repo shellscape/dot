@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.9.2
+
+_2023-09-29_
+
+### Bugfixes
+
+- fix: add timestamp to IDs for eventbus and queue (ca4e6cb)
+
 ## v3.9.1
 
 _2023-09-13_
