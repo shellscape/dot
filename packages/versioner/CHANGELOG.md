@@ -1,5 +1,13 @@
 # @dot/versioner ChangeLog
 
+## v0.2.0
+
+_2023-10-15_
+
+### Features
+
+- feat: add wildcard scope support for commits affecting all packages (aa39a91)
+
 ## v0.1.5
 
 _2023-06-11_
