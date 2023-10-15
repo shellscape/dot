@@ -66,8 +66,10 @@ const getCommits = async (shortName: string, stripScope: string[]) => {
   log.info(chalk`{blue Last Release Tag}: ${latestTag || '<none>'}`);
 
   params = ['--no-pager', 'log', `${latestTag}..HEAD`, '--format=%B%n-hash-%n%H🐒💨🙊'];
+  const others = '([\\w,-]+)?';
   const scope = stripScope.reduce((prev, strip) => prev.replace(strip, ''), shortName);
-  const rePlugin = new RegExp(`^[\\w\\!]+\\(([\\w,-]+)?${scope}([\\w,-]+)?\\)`, 'i');
+  const individuals = `${others}${scope}${others}`;
+  const rePlugin = new RegExp(`^[\\w\\!]+\\((${individuals}|\\*)\\)`, 'i');
   let { stdout } = await execa('git', params);
 
   if (!stdout) {
