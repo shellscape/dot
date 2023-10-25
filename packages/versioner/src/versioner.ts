@@ -141,7 +141,7 @@ const pull = async () => {
   const main = branches.includes('main') ? 'main' : 'master';
 
   await execa('git', ['pull', 'origin', main, '--no-edit']);
-  await execa('git', ['rebase']);
+  await execa('git', ['rebase', '--autostash']);
 };
 
 const push = async () => {
