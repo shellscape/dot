@@ -67,7 +67,7 @@ const getCommits = async (shortName: string, stripScope: string[]) => {
 
   params = ['--no-pager', 'log', `${latestTag}..HEAD`, '--format=%B%n-hash-%n%H🐒💨🙊'];
   const others = '([\\w,-]+)?';
-  const scope = stripScope.reduce((prev, strip) => prev.replace(strip, ''), shortName);
+  const scope = stripScope.reduce((prev, strip) => prev.replace(new RegExp(strip), ''), shortName);
   const individuals = `${others}${scope}${others}`;
   const rePlugin = new RegExp(`^[\\w\\!]+\\((${individuals}|\\*)\\)`, 'i');
   let { stdout } = await execa('git', params);
@@ -240,10 +240,14 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
 (async () => {
   try {
     const cwd = argv.target;
-    const stripScope = argv.stripScope?.split(',') || [];
+    const stripScope: string[] = argv.stripScope?.split(',') || [];
+    const stripShortName: string[] = argv.stripShortName?.split(',') || ['^@.+/'];
 
-    const { name: targetName } = await import(join(cwd, 'package.json'));
-    const shortName = targetName.replace(/^@.+\//, '');
+    const { name: targetName }: { name: string } = await import(join(cwd, 'package.json'));
+    const shortName = stripShortName.reduce(
+      (prev, strip) => prev.replace(new RegExp(strip), ''),
+      targetName
+    );
     const parentDirName = dirname(resolve(cwd, '..'));
 
     if (!cwd || !existsSync(cwd)) {
@@ -258,6 +262,10 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
 
     const from = chalk` from {grey ${parentDirName}/${targetName}}`;
     log.info(chalk`{cyan Releasing \`${targetName}\`}${from}\n`);
+    log.info(chalk`{blue Target Short Name}: ${shortName}`);
+
+    if (argv.stripScope)
+      log.info(chalk`{blue Modifying Target Commit Scope} with: ${stripScope.toString()}`);
 
     const commits = await getCommits(shortName, stripScope);
 
