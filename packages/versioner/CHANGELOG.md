@@ -1,5 +1,13 @@
 # @dot/versioner ChangeLog
 
+## v0.3.1
+
+_2023-10-25_
+
+### Bugfixes
+
+- fix: use --autostash with rebase to avoid dirty state (493f075)
+
 ## v0.3.0
 
 _2023-10-25_

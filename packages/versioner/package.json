@@ -1,6 +1,6 @@
 {
   "name": "@dot/versioner",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publishConfig": {
     "access": "public"
   },
