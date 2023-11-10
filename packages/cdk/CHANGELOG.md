@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.9.3
+
+_2023-11-10_
+
+### Bugfixes
+
+- fix: don't set IS_FARGATE for lambdas (70ff3b0)
+
 ## v3.9.2
 
 _2023-09-29_
