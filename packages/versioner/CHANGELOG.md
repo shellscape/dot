@@ -1,5 +1,13 @@
 # @dot/versioner ChangeLog
 
+## v0.3.2
+
+_2023-12-01_
+
+### Bugfixes
+
+- versioner: prevent similar name matches when gathering commits (57faee4)
+
 ## v0.3.1
 
 _2023-10-25_
