@@ -54,10 +54,11 @@ const commitChanges = async (cwd: string, shortName: string, version: string) =>
   await execa('git', params);
 };
 
-const getCommits = async (shortName: string, stripScope: string[]) => {
-  log.info(chalk`{blue Gathering Commits}`);
-
+const getCommits = async (shortName: string) => {
   const tagPattern = `${shortName}-v*`;
+
+  log.info(chalk`{blue Gathering Commits for tags:} ${tagPattern}`);
+
   let params = ['tag', '--list', tagPattern, '--sort', '-v:refname'];
 
   const { stdout: tags } = await execa('git', params);
@@ -66,9 +67,7 @@ const getCommits = async (shortName: string, stripScope: string[]) => {
   log.info(chalk`{blue Last Release Tag}: ${latestTag || '<none>'}`);
 
   params = ['--no-pager', 'log', `${latestTag}..HEAD`, '--format=%B%n-hash-%n%H🐒💨🙊'];
-  const others = '([\\w,-]+)?';
-  const scope = stripScope.reduce((prev, strip) => prev.replace(new RegExp(strip), ''), shortName);
-  const individuals = `${others}${scope}${others}`;
+  const individuals = `(([\\w-]+,)+)?${shortName}((,[\\w-]+)+)?`;
   const rePlugin = new RegExp(`^[\\w\\!]+\\((${individuals}|\\*)\\)`, 'i');
   let { stdout } = await execa('git', params);
 
@@ -187,11 +186,25 @@ const updateChangelog = (
   const logFile = existsSync(logPath) ? readFileSync(logPath, 'utf-8') : '';
   const oldNotes = logFile.startsWith(title) ? logFile.slice(title.length).trim() : logFile;
   const notes: Notes = { breaking: [], features: [], fixes: [], updates: [] };
-  const reScope = new RegExp(`^([\\w\\!]+)\\(([\\w,-]+)?${shortName}([\\w,-]+)?\\)`, 'i');
+  const individuals = `(([\\w-]+,)+)?${shortName}((,[\\w-]+)+)?`;
+  const reScope = new RegExp(`^[\\w\\!]+\\((${individuals}|\\*)\\)`, 'i');
 
   for (const { breaking, hash, header, type } of commits) {
     const ref = /\(#\d+\)/.test(header as string) ? '' : ` (${hash?.substring(0, 7)})`;
     const message = header?.trim().replace(reScope, '$1') + ref;
+
+    // TODO: changelog links
+    // GITHUB_REPOSITORY;
+    // GITHUB_SERVER_URL;
+
+    // const ref = /\(#\d+\)/.test(header as string)
+    //   ? ''
+    //   : ` ([${hash?.substring(0, 7)}](https://github.com/rollup/plugins/commit/${hash}))`;
+    // const message =
+    //   header
+    //     ?.trim()
+    //     .replace(/\(.+\)!?:/, ':')
+    //     .replace(/\((#(\d+))\)/, '[$1](https://github.com/rollup/plugins/pull/$2)') + ref;
 
     if (breaking) {
       notes.breaking.push(message);
@@ -240,11 +253,10 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
 (async () => {
   try {
     const cwd = argv.target;
-    const stripScope: string[] = argv.stripScope?.split(',') || [];
-    const stripShortName: string[] = argv.stripShortName?.split(',') || ['^@.+/'];
+    const stripScope: string[] = argv.stripScope?.split(',') || ['^@.+/'];
 
     const { name: targetName }: { name: string } = await import(join(cwd, 'package.json'));
-    const shortName = stripShortName.reduce(
+    const shortName = stripScope.reduce(
       (prev, strip) => prev.replace(new RegExp(strip), ''),
       targetName
     );
@@ -267,7 +279,7 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
     if (argv.stripScope)
       log.info(chalk`{blue Modifying Target Commit Scope} with: ${stripScope.toString()}`);
 
-    const commits = await getCommits(shortName, stripScope);
+    const commits = await getCommits(shortName);
 
     if (!commits.length) {
       log.info(chalk`\n{red No Commits Found}. Did you mean to publish ${targetName}?`);
