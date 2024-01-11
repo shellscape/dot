@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.9.4
+
+_2024-01-11_
+
+### Bugfixes
+
+- cdk: update dependencies (11a6c51)
+
 ## v3.9.3
 
 _2023-11-10_
