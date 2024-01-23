@@ -1,5 +1,5 @@
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InterfaceVpcEndpointAwsService, Peer, Port } from 'aws-cdk-lib/aws-ec2';
+import { InterfaceVpcEndpointAwsService } from 'aws-cdk-lib/aws-ec2';
 import {
   ContainerImage,
   LogDriver,
@@ -80,10 +80,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   const aggregate = new ecsPatterns.ApplicationLoadBalancedFargateService(scope, serviceName, {
     assignPublicIp: true,
     certificate,
-    // Note: Enabling this causes a "service already exists" error because we use set service names.
-    // https://github.com/aws/aws-cdk/pull/22467 was supposed to fix that, but it doesn't work. we
-    // probably have an additional condition causing problems that the fix doesn't address
-    // circuitBreaker: { rollback: true },
+    circuitBreaker: { rollback: true },
     cpu,
     desiredCount: desiredInstances,
     loadBalancerName: `${serviceName}-lb`,
@@ -101,6 +98,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
         NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${nodeMemorySize}`,
         ...environmentVariables
       },
+      family: `${serviceName}-task-def`,
       image: ContainerImage.fromDockerImageAsset(asset),
       logDriver: LogDriver.awsLogs({
         logRetention: RetentionDays.ONE_WEEK,
@@ -144,14 +142,19 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   // confuses CF. We also can't get the list of securityGroupIds or the securityGroup references that
   // CDK creats for us because they're private to the FargateService class, and if we try to pull them
   // from the LoadBalancer, we get an error about our Stack and needing to hardcode the accountId
+  const securityGroupName = `${serviceName}-sg`;
   const securityGroup = addSecurityGroup({
     allowAllOutbound: true,
-    egressRules: [{ connection: Port.tcp(443), peer: Peer.ipv4(vpc.vpcCidrBlock) }],
-    id: `${serviceName}-sg`,
+    // Note: If we set allowAllOutbound to false, we'll need the egress rules below
+    // egressRules: [{ connection: Port.tcp(443), peer: Peer.ipv4(vpc.vpcCidrBlock) }],
+    id: securityGroupName,
+    name: securityGroupName,
     scope,
     vpc
   });
   const securityGroups = [securityGroup];
+
+  scope.overrideId(securityGroup, securityGroupName);
 
   // Note: We're going to add the most common interfaces we use, in prep for services to assign
   // permissions

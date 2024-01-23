@@ -8,6 +8,7 @@ interface AddSecurityGroupArgs extends SecurityGroupProps {
   egressRules?: SecurityGroupRuleDefinition[];
   id: string;
   ingressRules?: SecurityGroupRuleDefinition[];
+  name: string;
   scope: DotStack;
 }
 
@@ -25,8 +26,8 @@ interface SecurityGroupRuleDefinition {
 }
 
 export const addSecurityGroup = (args: AddSecurityGroupArgs) => {
-  const { egressRules, id, ingressRules, scope } = args;
-  const newSecurityGroup = new SecurityGroup(scope, id, args);
+  const { egressRules, id, ingressRules, name, scope } = args;
+  const newSecurityGroup = new SecurityGroup(scope, id, { ...args, securityGroupName: name });
 
   ingressRules?.forEach((rule) => {
     newSecurityGroup.addIngressRule(rule.peer, rule.connection, rule.description, rule.remoteRule);
