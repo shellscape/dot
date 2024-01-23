@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.10.0
+
+_2024-01-23_
+
+### Features
+
+- cdk: enable circuit breaker support for fargate (6a9c5bf)
+
 ## v3.9.4
 
 _2024-01-11_
