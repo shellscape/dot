@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.11.0
+
+_2024-02-28_
+
+### Features
+
+- cdk: use node v18 as default for lambda (ab0b28a)
+
 ## v3.10.1
 
 _2024-02-28_
