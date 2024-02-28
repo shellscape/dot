@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.10.1
+
+_2024-02-28_
+
+### Bugfixes
+
+- cdk: add rule name to new rule (8a1f686)
+
 ## v3.10.0
 
 _2024-01-23_
