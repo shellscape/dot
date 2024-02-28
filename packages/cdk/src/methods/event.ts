@@ -113,7 +113,8 @@ export const addRule = (options: AddRuleOptions) => {
     eventBus,
     eventPattern: {
       detailType: [eventName]
-    }
+    },
+    ruleName
   });
 
   scope.overrideId(rule, ruleName);
