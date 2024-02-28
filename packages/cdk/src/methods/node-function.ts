@@ -85,7 +85,7 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
     logRetention: RetentionDays.ONE_WEEK,
     memorySize,
     reservedConcurrentExecutions: concurrency?.reserved,
-    runtime: Runtime.NODEJS_16_X,
+    runtime: Runtime.NODEJS_18_X,
     timeout,
     tracing: Tracing.ACTIVE
   });
