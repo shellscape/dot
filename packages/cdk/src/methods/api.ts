@@ -32,6 +32,7 @@ type ApiVerb = 'DELETE' | 'GET' | 'POST' | 'PUT' | 'OPTIONS';
 
 interface AddApiOptions {
   authorization?: Omit<AddAuthorizerOptions, 'scope'>;
+  binaryMedia?: boolean | string[];
   cors?: boolean;
   deployEnv?: 'prod' | 'stage' | 'dev' | 'test';
   domain?: ApiDomainOptions;
@@ -48,9 +49,19 @@ export interface AddApiResult {
   handler: Function;
 }
 
+const binaryMediaDefaults = [
+  'application/octet-stream',
+  'application/pdf',
+  'application/vnd.ms-powerpoint',
+  'image/jpg',
+  'image/jpeg',
+  'image/png'
+];
+
 export const addApi = (options: AddApiOptions): AddApiResult => {
   const {
     authorization,
+    binaryMedia = false,
     cors,
     deployEnv = 'prod',
     domain,
@@ -84,6 +95,7 @@ export const addApi = (options: AddApiOptions): AddApiResult => {
   });
 
   const apiOptions: RestApiProps = {
+    binaryMediaTypes: binaryMedia === true ? binaryMediaDefaults : void 0,
     defaultCorsPreflightOptions: cors
       ? {
           allowHeaders: ['Cache-Control', ...Cors.DEFAULT_HEADERS],
