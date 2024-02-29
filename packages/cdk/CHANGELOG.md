@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.11.1
+
+_2024-02-29_
+
+### Bugfixes
+
+- cdk: allow binaryMedia to be served by RestApi (eea3e72)
+
 ## v3.11.0
 
 _2024-02-28_
