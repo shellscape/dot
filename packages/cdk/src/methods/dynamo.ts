@@ -24,6 +24,7 @@ interface AddTableOptions {
   producers?: IGrantable[];
   scope: DotStack;
   sortKey?: Attribute;
+  timeToLiveAttribute?: string;
 }
 
 interface AddGlobalIndexOptions {
@@ -47,7 +48,14 @@ export const tableExists = ({ scope, tableName }: TableExistsOptions) => {
 };
 
 export const addTable = (options: AddTableOptions) => {
-  const { consumers = [], partitionKey, producers = [], scope, sortKey } = options;
+  const {
+    consumers = [],
+    partitionKey,
+    producers = [],
+    scope,
+    sortKey,
+    timeToLiveAttribute
+  } = options;
   const name = options.name.replace(/-table$/, '');
   const prefix = options.prefix ? `${scope.appName}-` : '';
   const tableName = `${scope.envPrefix}${prefix}${name}`;
@@ -61,7 +69,8 @@ export const addTable = (options: AddTableOptions) => {
     pointInTimeRecovery: scope.env === 'prod',
     removalPolicy: RemovalPolicy.DESTROY,
     sortKey,
-    tableName
+    tableName,
+    timeToLiveAttribute
   });
 
   scope.overrideId(table, tableId);
