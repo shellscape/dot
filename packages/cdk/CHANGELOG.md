@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.12.0
+
+_2024-03-05_
+
+### Features
+
+- cdk: timeToLiveAttribute for dynamo tables (b343307)
+
 ## v3.11.1
 
 _2024-02-29_
