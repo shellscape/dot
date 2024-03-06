@@ -1,3 +1,4 @@
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { BackupPlan, BackupPlanRule, BackupResource } from 'aws-cdk-lib/aws-backup';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
@@ -11,6 +12,10 @@ interface BackupOptions {
    *       If false, the backup uses the standard on-demand method.
    */
   pointInTime?: boolean;
+  /*
+   * @desc If true, adds a removal policy of RemovalPolicy.RETAIN to the backup plan
+   */
+  retain?: boolean;
   scope: DotStack;
   tables?: Table[];
 }
@@ -20,7 +25,7 @@ interface BackupOptions {
  *       Backups are retained for five years, and moved to cold storage after 30 days.
  */
 export const addBackup = (options: BackupOptions) => {
-  const { arns = [], name, pointInTime, scope, tables = [] } = options;
+  const { arns = [], name, pointInTime, retain, scope, tables = [] } = options;
   const id = name.replace(/-backup$/, '');
   const backupPlanName = `${scope.appName}-${id}`;
   const selectionName = `${backupPlanName}-resources`;
@@ -41,6 +46,8 @@ export const addBackup = (options: BackupOptions) => {
   }
 
   plan.addSelection(selectionName, { backupSelectionName: selectionName, resources });
+
+  if (retain) plan.applyRemovalPolicy(RemovalPolicy.RETAIN);
 
   return { plan };
 };

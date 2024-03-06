@@ -1,3 +1,5 @@
+import { AssertionError } from 'assert';
+
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import type { IDistribution } from 'aws-cdk-lib/aws-cloudfront';
 import {
@@ -46,13 +48,19 @@ export interface AddBucketDeploymentResult {
 }
 
 export interface AddBucketOptions {
-  autoDelete?: boolean;
+  autoDeleteObjects?: boolean;
   cors?: boolean;
   expireAfterDays?: number;
   handlers?: BucketEventHandlerOptions[];
   name: string;
   publicReadAccess?: boolean;
-  removalPolicy?: RemovalPolicy;
+  /*
+   * @desc If true, adds a removal policy of RemovalPolicy.RETAIN to the bucket
+   * https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_s3.Bucket.html#autodeleteobjects
+   * Despite the docs saying that the removal policy is required to be DESTROY, this will also
+   * remove objects if the removal policy is RETAIN
+   */
+  retain?: boolean;
   scope: DotStack;
   /*
    * If true, enables static website hosting for the bucket. An `index.html` file must exist within the bucket contents.
@@ -75,17 +83,28 @@ interface GrantFullBucketAccessOptions {
 
 export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   const {
-    autoDelete = true,
+    /*
+     * @desc Delete bucket objects when the stack is deleted or the bucket is
+     * removed from the stack
+     */
+    autoDeleteObjects = true,
     cors = false,
     expireAfterDays,
     handlers,
     name,
     publicReadAccess,
+    retain = false,
     staticHosting,
     scope
   } = options;
-  let { removalPolicy = RemovalPolicy.RETAIN } = options;
 
+  if (autoDeleteObjects && retain)
+    throw new AssertionError({
+      message:
+        'When retain is set to `true`, autoDeleteObjects cannot be set to `true`. Retained buckets should retain objects.'
+    });
+
+  const removalPolicy = retain ? RemovalPolicy.RETAIN : void 0;
   const baseName = DotStack.baseName(name, 'bucket');
   const bucketName = scope.resourceName(baseName);
   const lifeCycleRules = [];
@@ -118,10 +137,8 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     });
   }
 
-  if (autoDelete || scope.env !== 'prod') removalPolicy = RemovalPolicy.DESTROY;
-
   const bucketProps: BucketProps = {
-    autoDeleteObjects: autoDelete,
+    autoDeleteObjects,
     blockPublicAccess,
     bucketName,
     cors: corsProps,

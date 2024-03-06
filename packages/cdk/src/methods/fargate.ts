@@ -112,7 +112,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   scope.overrideId(service, serviceName);
 
   const { bucket } = addBucket({
-    autoDelete: true,
+    autoDeleteObjects: true,
     expireAfterDays: 7,
     name: 'service-lb-logs',
     scope
