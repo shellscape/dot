@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.13.1
+
+_2024-03-06_
+
+### Bugfixes
+
+- cdk: add specialized permissions for s3 backups (7439918)
+
 ## v3.13.0
 
 _2024-03-06_
