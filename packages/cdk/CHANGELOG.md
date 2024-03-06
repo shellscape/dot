@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.2
+
+_2024-03-06_
+
+### Bugfixes
+
+- cdk: override backup role name (9e3e4f7)
+
 ## v3.14.0
 
 _2024-03-06_
