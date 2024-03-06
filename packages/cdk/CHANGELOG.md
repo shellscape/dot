@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.3
+
+_2024-03-06_
+
+### Bugfixes
+
+- cdk: more removal policy refinement for s3 (d5d0f3f)
+
 ## v3.14.2
 
 _2024-03-06_
