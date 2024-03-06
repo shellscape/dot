@@ -8,6 +8,7 @@ import {
   BucketProps,
   EventType,
   HttpMethods,
+  LifecycleRule,
   NotificationKeyFilter
 } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
@@ -107,7 +108,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   const removalPolicy = retain ? RemovalPolicy.RETAIN : void 0;
   const baseName = DotStack.baseName(name, 'bucket');
   const bucketName = scope.resourceName(baseName);
-  const lifeCycleRules = [];
+  const lifecycleRules: LifecycleRule[] = [];
   const websiteIndexDocument = staticHosting ? 'index.html' : void 0;
   const blockPublicAccess = publicReadAccess
     ? new BlockPublicAccess({
@@ -130,7 +131,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
   log.info('Creating Bucket:', { baseName, bucketName, name });
 
   if (expireAfterDays && expireAfterDays > 0) {
-    lifeCycleRules.push({
+    lifecycleRules.push({
       enabled: true,
       expiration: Duration.days(expireAfterDays),
       id: `${bucketName}-expiration-rule`
@@ -142,6 +143,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     blockPublicAccess,
     bucketName,
     cors: corsProps,
+    lifecycleRules,
     publicReadAccess,
     removalPolicy,
     websiteIndexDocument

@@ -22,6 +22,10 @@ interface AddTableOptions {
   partitionKey: Attribute;
   prefix?: boolean;
   producers?: IGrantable[];
+  /*
+   * @desc If true, adds a removal policy of RemovalPolicy.RETAIN to the dynamo table
+   */
+  retain?: boolean;
   scope: DotStack;
   sortKey?: Attribute;
   timeToLiveAttribute?: string;
@@ -52,12 +56,14 @@ export const addTable = (options: AddTableOptions) => {
     consumers = [],
     partitionKey,
     producers = [],
+    retain = false,
     scope,
     sortKey,
     timeToLiveAttribute
   } = options;
   const name = options.name.replace(/-table$/, '');
   const prefix = options.prefix ? `${scope.appName}-` : '';
+  const removalPolicy = retain ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY;
   const tableName = `${scope.envPrefix}${prefix}${name}`;
   // tableId is the CDK id/name for the table, whereas tableName is the actual name of the table in
   // DynamoDB
@@ -67,7 +73,7 @@ export const addTable = (options: AddTableOptions) => {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey,
     pointInTimeRecovery: scope.env === 'prod',
-    removalPolicy: RemovalPolicy.DESTROY,
+    removalPolicy,
     sortKey,
     tableName,
     timeToLiveAttribute
