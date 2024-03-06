@@ -105,7 +105,13 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
         'When retain is set to `true`, autoDeleteObjects cannot be set to `true`. Retained buckets should retain objects.'
     });
 
-  const removalPolicy = retain ? RemovalPolicy.RETAIN : void 0;
+  const removalPolicy = retain
+    ? RemovalPolicy.RETAIN
+    : retain === false
+    ? RemovalPolicy.DESTROY
+    : autoDeleteObjects === true
+    ? RemovalPolicy.DESTROY
+    : void 0;
   const baseName = DotStack.baseName(name, 'bucket');
   const bucketName = scope.resourceName(baseName);
   const lifecycleRules: LifecycleRule[] = [];
