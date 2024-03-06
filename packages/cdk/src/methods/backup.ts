@@ -60,7 +60,7 @@ export const addBackup = (options: BackupOptions) => {
   }
 
   if (buckets.length) {
-    role = new Role(scope, 'ServiceRole', {
+    role = new Role(scope, `${backupPlanName}-service-role`, {
       assumedBy: new ServicePrincipal('backup.amazonaws.com')
     });
     role.addManagedPolicy(
