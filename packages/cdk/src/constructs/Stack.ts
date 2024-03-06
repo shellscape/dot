@@ -11,8 +11,15 @@ export interface DotStackProps extends StackProps {
   name: string;
 }
 
-const { AWS_REGION, CDK_DEFAULT_REGION, DEPLOY_ENV } = process.env;
+// Note: Many functions, like Vpc.fromLookup, require populating account and region in the stack
+const { AWS_ACCOUNT_ID, AWS_REGION, CDK_DEFAULT_ACCOUNT, CDK_DEFAULT_REGION, DEPLOY_ENV } =
+  process.env;
+const account = AWS_ACCOUNT_ID || CDK_DEFAULT_ACCOUNT;
 const region = AWS_REGION || CDK_DEFAULT_REGION || 'default (us-east-1)';
+const presetEnv = {
+  account,
+  region
+};
 
 export class DotStack extends Stack {
   static readonly awsRegion = region;
@@ -26,7 +33,7 @@ export class DotStack extends Stack {
     const stackName = props.name.replace(/-stack$/, '');
     const env = DEPLOY_ENV as DeployEnvironment;
     const envPrefix = `${env}-`;
-    const stackEnv = { ...(props.env || { region }) };
+    const stackEnv = { ...(props.env || presetEnv) };
 
     super(scope, `${envPrefix}${stackName}-stack`, { ...props, env: stackEnv });
 

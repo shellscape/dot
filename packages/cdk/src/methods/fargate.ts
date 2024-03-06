@@ -1,5 +1,5 @@
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { InterfaceVpcEndpointAwsService } from 'aws-cdk-lib/aws-ec2';
+import { InterfaceVpcEndpointAwsService, Vpc, type IVpc } from 'aws-cdk-lib/aws-ec2';
 import {
   ContainerImage,
   LogDriver,
@@ -32,11 +32,13 @@ export enum ServiceMemoryLimit {
   TWO_GB = 2048
 }
 
-interface AddServiceOptions {
+export interface AddServiceOptions {
+  assignPublicIp?: boolean;
   baseDir: string;
   certificateArn: string;
   cpu?: ServiceCPUUnits;
   cpuScaleAtPercent: MinMaxNumber<10, 90>;
+  defaultVpc?: boolean;
   desiredInstances?: MinMaxNumber<1, 10>;
   environmentVariables: Record<string, string>;
   maxInstances?: MinMaxNumber<1, 10>;
@@ -45,6 +47,7 @@ interface AddServiceOptions {
   name?: string;
   nodeMemorySize?: number;
   scope: DotStack;
+  vpc?: IVpc;
 }
 
 export interface AddServiceResult {
@@ -55,10 +58,12 @@ export interface AddServiceResult {
 
 export const addFargateService = (options: AddServiceOptions): AddServiceResult => {
   const {
+    assignPublicIp = true,
     baseDir,
     certificateArn,
     cpu = ServiceCPUUnits.HALF_VCPU,
     cpuScaleAtPercent = 50,
+    defaultVpc,
     desiredInstances = 1,
     environmentVariables,
     maxInstances = 3,
@@ -68,6 +73,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     nodeMemorySize = 2000,
     scope
   } = options;
+  let { vpc } = options;
   const { env } = scope;
   const baseName = DotStack.baseName(name, 'service');
   const serviceName = scope.resourceName(baseName);
@@ -77,8 +83,10 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     directory: baseDir
   });
 
+  if (defaultVpc) vpc = Vpc.fromLookup(scope, 'Vpc', { isDefault: true });
+
   const aggregate = new ecsPatterns.ApplicationLoadBalancedFargateService(scope, serviceName, {
-    assignPublicIp: true,
+    assignPublicIp,
     certificate,
     circuitBreaker: { rollback: true },
     cpu,
@@ -104,7 +112,8 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
         logRetention: RetentionDays.ONE_WEEK,
         streamPrefix: serviceName
       })
-    }
+    },
+    vpc
   });
 
   const { cluster, loadBalancer, service, targetGroup, taskDefinition } = aggregate;
@@ -135,7 +144,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     targetUtilizationPercent: cpuScaleAtPercent
   });
 
-  const { vpc } = cluster;
+  const { vpc: clusterVpc } = cluster;
 
   // Note: The security group here was the key to getting CF to stop hanging on adding the interfaces
   // below. If we don't include a security group, they _each_ create their own, and that really
@@ -150,7 +159,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     id: securityGroupName,
     name: securityGroupName,
     scope,
-    vpc
+    vpc: vpc || clusterVpc
   });
   const securityGroups = [securityGroup];
 
@@ -159,22 +168,22 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   // Note: We're going to add the most common interfaces we use, in prep for services to assign
   // permissions
 
-  vpc.addInterfaceEndpoint(`${serviceName}-secrets-iface`, {
+  clusterVpc.addInterfaceEndpoint(`${serviceName}-secrets-iface`, {
     securityGroups,
     service: InterfaceVpcEndpointAwsService.SECRETS_MANAGER
   });
 
-  vpc.addInterfaceEndpoint(`${serviceName}-sns-iface`, {
+  clusterVpc.addInterfaceEndpoint(`${serviceName}-sns-iface`, {
     securityGroups,
     service: InterfaceVpcEndpointAwsService.SNS
   });
 
-  vpc.addInterfaceEndpoint(`${serviceName}-sqs-iface`, {
+  clusterVpc.addInterfaceEndpoint(`${serviceName}-sqs-iface`, {
     securityGroups,
     service: InterfaceVpcEndpointAwsService.SQS
   });
 
-  vpc.addInterfaceEndpoint(`${serviceName}-ssm-iface`, {
+  clusterVpc.addInterfaceEndpoint(`${serviceName}-ssm-iface`, {
     securityGroups,
     service: InterfaceVpcEndpointAwsService.SSM
   });
