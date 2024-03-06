@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.4
+
+_2024-03-06_
+
+### Bugfixes
+
+- cdk: refinements for fargate deploys (bd85fe9)
+
 ## v3.14.3
 
 _2024-03-06_
