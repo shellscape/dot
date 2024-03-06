@@ -60,7 +60,8 @@ export const addBackup = (options: BackupOptions) => {
   }
 
   if (buckets.length) {
-    role = new Role(scope, `${backupPlanName}-service-role`, {
+    const roleName = `${backupPlanName}-service-role`;
+    role = new Role(scope, roleName, {
       assumedBy: new ServicePrincipal('backup.amazonaws.com')
     });
     role.addManagedPolicy(
@@ -69,6 +70,8 @@ export const addBackup = (options: BackupOptions) => {
     role.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AWSBackupServiceRolePolicyForS3Backup')
     );
+
+    scope.overrideId(role, roleName);
   }
 
   plan.addSelection(selectionName, { backupSelectionName: selectionName, resources, role });
