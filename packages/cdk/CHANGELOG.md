@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.0
+
+_2024-03-06_
+
+### Features
+
+- cdk: refine dynamo retention settings (d97f3fe)
+
 ## v3.13.1
 
 _2024-03-06_
