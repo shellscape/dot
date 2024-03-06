@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.13.0
+
+_2024-03-06_
+
+### Features
+
+- cdk: refine bucket auto delete and retention (7cbded7)
+
 ## v3.12.0
 
 _2024-03-05_
