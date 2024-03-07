@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.5
+
+_2024-03-07_
+
+### Bugfixes
+
+- cdk: default vpc endpoints and bucket name for grant (b10b367)
+
 ## v3.14.4
 
 _2024-03-06_
