@@ -17,6 +17,7 @@ import { S3EventSource, S3EventSourceProps } from 'aws-cdk-lib/aws-lambda-event-
 import { Function } from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
 import { log } from '../log';
@@ -238,8 +239,7 @@ export const grantFullBucketAccess = async ({
 }: GrantFullBucketAccessOptions) => {
   if (!bucket && !bucketName) throw new RangeError('bucket or bucketName must be specified');
 
-  const target =
-    bucket || Bucket.fromBucketName(scope, `fromBucketName-${+new Date()}`, bucketName!);
+  const target = bucket || Bucket.fromBucketName(scope, `fromBucketName-${nanoid()}`, bucketName!);
 
   consumers.forEach((consumer) => {
     target.grantReadWrite(consumer);

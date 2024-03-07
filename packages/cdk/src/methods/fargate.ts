@@ -165,28 +165,30 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
 
   scope.overrideId(securityGroup, securityGroupName);
 
-  // Note: We're going to add the most common interfaces we use, in prep for services to assign
-  // permissions
+  if (!defaultVpc) {
+    // Note: We're going to add the most common interfaces we use, in prep for services to assign
+    // permissions
 
-  clusterVpc.addInterfaceEndpoint(`${serviceName}-secrets-iface`, {
-    securityGroups,
-    service: InterfaceVpcEndpointAwsService.SECRETS_MANAGER
-  });
+    clusterVpc.addInterfaceEndpoint(`${serviceName}-secrets-iface`, {
+      securityGroups,
+      service: InterfaceVpcEndpointAwsService.SECRETS_MANAGER
+    });
 
-  clusterVpc.addInterfaceEndpoint(`${serviceName}-sns-iface`, {
-    securityGroups,
-    service: InterfaceVpcEndpointAwsService.SNS
-  });
+    clusterVpc.addInterfaceEndpoint(`${serviceName}-sns-iface`, {
+      securityGroups,
+      service: InterfaceVpcEndpointAwsService.SNS
+    });
 
-  clusterVpc.addInterfaceEndpoint(`${serviceName}-sqs-iface`, {
-    securityGroups,
-    service: InterfaceVpcEndpointAwsService.SQS
-  });
+    clusterVpc.addInterfaceEndpoint(`${serviceName}-sqs-iface`, {
+      securityGroups,
+      service: InterfaceVpcEndpointAwsService.SQS
+    });
 
-  clusterVpc.addInterfaceEndpoint(`${serviceName}-ssm-iface`, {
-    securityGroups,
-    service: InterfaceVpcEndpointAwsService.SSM
-  });
+    clusterVpc.addInterfaceEndpoint(`${serviceName}-ssm-iface`, {
+      securityGroups,
+      service: InterfaceVpcEndpointAwsService.SSM
+    });
+  }
 
   return { aggregate, service, task: taskDefinition };
 };
