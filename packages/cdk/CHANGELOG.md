@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.6
+
+_2024-03-11_
+
+### Bugfixes
+
+- cdk: add s3 readonly to bucket backup (f5d39a7)
+
 ## v3.14.5
 
 _2024-03-07_
