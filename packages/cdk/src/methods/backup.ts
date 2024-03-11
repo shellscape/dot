@@ -70,6 +70,7 @@ export const addBackup = (options: BackupOptions) => {
     role.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AWSBackupServiceRolePolicyForS3Backup')
     );
+    role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'));
 
     scope.overrideId(role, roleName);
   }
