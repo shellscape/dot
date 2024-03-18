@@ -1,24 +1,6 @@
 /* eslint-disable no-undefined */
 
 import test from 'ava';
-import AWS from 'aws-sdk';
-import { mock, setSDKInstance } from 'aws-sdk-mock';
-
-setSDKInstance(AWS);
-
-mock(
-  'SecretsManager',
-  'getSecretValue',
-  (key: AWS.SecretsManager.GetSecretValueRequest, callback: Function) => {
-    const result = key.SecretId === 'batman-address' ? { SecretString: 'batcave' } : undefined;
-    callback(null, result);
-  }
-);
-
-mock('SSM', 'getParameter', (key: AWS.SSM.GetParameterRequest, callback: Function) => {
-  const result = key.Name === '/address/batman' ? { Parameter: { Value: 'batman' } } : undefined;
-  callback(null, result);
-});
 
 const stubs = {
   defaultConfig: {},
@@ -97,4 +79,18 @@ test('get → fail', async (t) => {
 
   const error = await t.throwsAsync(fn);
   t.snapshot(error);
+});
+
+test('disable cache', async (t) => {
+  const { init } = await import('../src');
+  const { get } = init({ ...stubs });
+
+  process.env.JOKER_ENV = 'batman';
+
+  t.snapshot(await get('JOKER_ENV'));
+
+  process.env.DOT_CONFIG_DISABLE_CACHE = 'true';
+  process.env.JOKER_ENV = 'joker';
+
+  t.snapshot(await get('JOKER_ENV'));
 });
