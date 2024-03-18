@@ -37,30 +37,30 @@ export const init = <TDefaults, TSecrets, TSsm>({
   const secretKeys: TSecrets = Object.assign({}, secretConfig);
   const ssmKeys: TSsm = Object.assign({}, ssmConfig);
 
-  const getBase = mem(
-    async (key: string) => {
-      log.debug('requesting value for key:', key);
-      // We want this to be dynamic at call-time so we can massage process.env for testing, flexibility
-      // eslint-disable-next-line  @typescript-eslint/no-shadow
-      const env = config ?? (config = Object.assign({}, process.env));
-      const envResult = typeof env[key] !== 'undefined' ? env[key] : void 0;
-      const result =
-        envResult ||
-        (await getSsmValue((ssmKeys as KeyConfig)[key])) ||
-        (await getSecretValue((secretKeys as KeyConfig)[key])) ||
-        (defaults as KeyConfig)[key];
+  const getBase = async (key: string) => {
+    log.debug('requesting value for key:', key);
 
-      if (result === void 0)
-        throw new RangeError(
-          `The environment, secret, or ssm variable '${key}' is unpopulated or invalid`
-        );
-
-      return result;
-    },
-    {
-      cacheKey: (args) => JSON.stringify(args)
+    if (!config || process.env.DOT_CONFIG_DISABLE_CACHE) {
+      config = { ...process.env };
     }
-  );
+
+    const envResult = typeof config[key] !== 'undefined' ? config[key] : void 0;
+
+    log.debug('envResult for:', key, '→', envResult);
+
+    const result =
+      envResult ||
+      (await getSsmValue((ssmKeys as KeyConfig)[key])) ||
+      (await getSecretValue((secretKeys as KeyConfig)[key])) ||
+      (defaults as KeyConfig)[key];
+
+    if (result === void 0)
+      throw new RangeError(
+        `The environment, secret, or ssm variable '${key}' is unpopulated or invalid`
+      );
+
+    return result;
+  };
 
   /* eslint-disable no-redeclare */
   function get(
@@ -68,7 +68,12 @@ export const init = <TDefaults, TSecrets, TSsm>({
   ): Promise<string>;
   function get(key: string): Promise<string>;
   function get(key: any) {
-    return (getBase as Function)(key as string);
+    log.debug('process.env.DOT_CONFIG_DISABLE_CACHE', process.env.DOT_CONFIG_DISABLE_CACHE);
+
+    if (process.env.DOT_CONFIG_DISABLE_CACHE) return getBase(key);
+
+    const fn = mem(getBase, { cacheKey: (args) => JSON.stringify(args) });
+    return fn(key);
   }
 
   const put = (key: keyof typeof ssmKeys, value: string) => {

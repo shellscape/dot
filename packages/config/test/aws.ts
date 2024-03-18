@@ -1,25 +1,21 @@
 /* eslint-disable no-undefined */
 
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import test from 'ava';
-import AWS from 'aws-sdk';
-import { mock, setSDKInstance } from 'aws-sdk-mock';
+import { mockClient } from 'aws-sdk-client-mock';
 
-setSDKInstance(AWS);
+const secretsMock = mockClient(SecretsManagerClient);
+const ssmMock = mockClient(SSMClient);
 
-mock(
-  'SecretsManager',
-  'getSecretValue',
-  (key: AWS.SecretsManager.GetSecretValueRequest, callback: Function) => {
-    const [error, result] =
-      key.SecretId === 'joker' ? [new Error('joker'), null] : [null, { SecretString: 'batman' }];
-    callback(error, result);
-  }
-);
+secretsMock.on(GetSecretValueCommand).callsFake((input) => {
+  if (input.SecretId === 'joker') throw new Error('joker');
+  return { SecretString: 'batman' };
+});
 
-mock('SSM', 'getParameter', (key: AWS.SSM.GetParameterRequest, callback: Function) => {
-  const [error, result] =
-    key.Name === 'joker' ? [new Error('joker'), null] : [null, { Parameter: { Value: 'batman' } }];
-  callback(error, result);
+ssmMock.on(GetParameterCommand).callsFake((input) => {
+  if (input.Name === 'joker') throw new Error('joker');
+  return { Parameter: { Value: 'batman' } };
 });
 
 test('getSecretValue', async (t) => {
