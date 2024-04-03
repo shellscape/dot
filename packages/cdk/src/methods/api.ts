@@ -141,15 +141,8 @@ export const addApi = (options: AddApiOptions): AddApiResult => {
     verbs.forEach((method) => what.addMethod(method, integration, methodOptions));
 
   if (proxy) {
-    const apiProxy = api.root.addProxy({
-      anyMethod: false
-    });
-
+    const apiProxy = api.root.addProxy();
     addMethods(apiProxy);
-    paths.forEach((path) => {
-      const resource = apiProxy.addResource(path);
-      addMethods(resource);
-    });
   } else {
     addMethods(api.root);
     paths.forEach((path) => {
