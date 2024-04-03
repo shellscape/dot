@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.7
+
+_2024-04-03_
+
+### Bugfixes
+
+- cdk: proxy catch all should not use paths (b486d51)
+
 ## v3.14.6
 
 _2024-03-11_
