@@ -1,7 +1,7 @@
 import { AssertionError } from 'assert';
 
 import { RemovalPolicy } from 'aws-cdk-lib';
-import { BackupPlan, BackupPlanRule, BackupResource } from 'aws-cdk-lib/aws-backup';
+import { BackupPlan, BackupPlanRule, BackupResource, BackupVault } from 'aws-cdk-lib/aws-backup';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
@@ -31,10 +31,11 @@ interface BackupOptions {
  */
 export const addBackup = (options: BackupOptions) => {
   const { arns = [], buckets = [], name, pointInTime, retain, scope, tables = [] } = options;
-  const id = name.replace(/-backup$/, '');
-  const backupPlanName = `${scope.appName}-${id}`;
+  const backupPlanName = scope.resourceName(DotStack.baseName(name, 'backup'));
   const selectionName = `${backupPlanName}-resources`;
-  const plan = new BackupPlan(scope, id, { backupPlanName });
+  const vaultName = scope.resourceName(DotStack.baseName(name.replace('-backup', ''), 'buv'));
+  const backupVault = new BackupVault(scope, vaultName, { backupVaultName: vaultName });
+  const plan = new BackupPlan(scope, backupPlanName, { backupPlanName, backupVault });
 
   if (buckets.length && (arns.length || tables.length))
     throw new AssertionError({
