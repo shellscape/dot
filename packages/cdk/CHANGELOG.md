@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.8
+
+_2024-04-15_
+
+### Bugfixes
+
+- cdk: mitigate long backup names when creating backup+vault (2f26d6f)
+
 ## v3.14.7
 
 _2024-04-03_
