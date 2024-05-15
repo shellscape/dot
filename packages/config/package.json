@@ -30,7 +30,7 @@
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.342.0",
     "@aws-sdk/client-ssm": "^3.342.0",
-    "@dot/log": "workspace:*",
+    "@dot/log": "workspace:^",
     "chalk": "^4.1.2",
     "mem": "^8.1.1"
   },

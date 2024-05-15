@@ -29,7 +29,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@dot/log": "workspace:*",
+    "@dot/log": "workspace:^",
     "chalk": "^4.1.2",
     "conventional-commits-parser": "^3.2.4",
     "execa": "^5.1.1",

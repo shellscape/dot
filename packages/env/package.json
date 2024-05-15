@@ -27,7 +27,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@dot/log": "workspace:*",
+    "@dot/log": "workspace:^",
     "dotenv": "^16.1.0",
     "dotenv-expand": "^10.0.0",
     "find-up": "5.0.0"

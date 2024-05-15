@@ -57,7 +57,7 @@ importers:
   packages/access:
     dependencies:
       '@dot/log':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../log
       chalk:
         specifier: ^4.1.2
@@ -124,7 +124,7 @@ importers:
         specifier: workspace:*
         version: link:../env
       '@dot/log':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../log
       '@smithy/types':
         specifier: ^2.3.1
@@ -176,7 +176,7 @@ importers:
         specifier: ^3.342.0
         version: 3.342.0
       '@dot/log':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../log
       chalk:
         specifier: ^4.1.2
@@ -192,7 +192,7 @@ importers:
   packages/env:
     dependencies:
       '@dot/log':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../log
       dotenv:
         specifier: ^16.1.0
@@ -219,7 +219,7 @@ importers:
   packages/versioner:
     dependencies:
       '@dot/log':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../log
       chalk:
         specifier: ^4.1.2

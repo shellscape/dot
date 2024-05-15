@@ -39,7 +39,7 @@
     "roles"
   ],
   "dependencies": {
-    "@dot/log": "workspace:*",
+    "@dot/log": "workspace:^",
     "chalk": "^4.1.2",
     "floppy-filter": "^1.0.17",
     "is-plain-obj": "3.0.0",
