@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.14.9
+
+_2024-05-15_
+
+### Bugfixes
+
+- access,cdk,config,env,versioner: bump log dependency (196025e)
+
 ## v3.14.8
 
 _2024-04-15_
