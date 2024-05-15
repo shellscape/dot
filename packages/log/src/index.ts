@@ -18,6 +18,7 @@ interface Log {
 }
 export type DotLog = Log & Omit<LogIndex, 'silent'>;
 
+const defaultEnv = { DOT_LOG_LEVEL: 'info' };
 const ready = defer();
 const colors: { [level: string]: string } = {
   debug: chalk`{magenta {inverse  {bold debug }}}`,
@@ -49,7 +50,7 @@ export const getLog = (opts?: LogOptions) => {
     template,
     time: () => new Date().toTimeString().split(' ')[0]
   } as any);
-  const { DOT_LOG_LEVEL = 'info' } = process.env;
+  const { DOT_LOG_LEVEL = 'info' } = typeof process === 'undefined' ? defaultEnv : process.env;
   const logOptions = {
     factory,
     level: DOT_LOG_LEVEL,
