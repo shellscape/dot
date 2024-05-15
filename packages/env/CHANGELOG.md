@@ -1,5 +1,13 @@
 # @dot/env ChangeLog
 
+## v0.1.5
+
+_2024-05-15_
+
+### Bugfixes
+
+- access,cdk,config,env,versioner: bump log dependency (196025e)
+
 ## v0.1.2
 
 _2023-01-24_
