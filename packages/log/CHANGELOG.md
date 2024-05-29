@@ -1,5 +1,13 @@
 # @dot/log ChangeLog
 
+## v0.1.5
+
+_2024-05-29_
+
+### Updates
+
+- log: update loglevelnext dependency (d17e1e3)
+
 ## v0.1.4
 
 _2024-05-15_
