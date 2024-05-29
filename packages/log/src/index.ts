@@ -4,6 +4,10 @@ import defer from 'p-defer';
 
 import { LogFactory } from './LogFactory';
 
+export type { MethodFactoryLevels };
+
+export { LogFactory };
+
 export interface LogOptions {
   brand?: string;
   name: string;
@@ -13,7 +17,7 @@ type LogIndex = {
   [key in MethodFactoryLevels]: typeof console.log;
 };
 
-interface Log {
+export interface Log {
   level: MethodFactoryLevels;
 }
 export type DotLog = Log & Omit<LogIndex, 'silent'>;

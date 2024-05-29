@@ -30,7 +30,7 @@
   ],
   "dependencies": {
     "chalk": "^4.1.2",
-    "loglevelnext": "^5.0.6",
+    "loglevelnext": "^6.0.0",
     "p-defer": "^3.0.0"
   }
 }
