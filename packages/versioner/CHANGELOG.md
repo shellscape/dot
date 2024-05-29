@@ -1,5 +1,13 @@
 # @dot/versioner ChangeLog
 
+## v0.3.4
+
+_2024-05-29_
+
+### Updates
+
+- versioner: update log dep (9d30640)
+
 ## v0.3.3
 
 _2024-05-15_
