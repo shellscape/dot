@@ -12,7 +12,7 @@ type FixedLengthArray<T extends any[]> = Pick<T, Exclude<keyof T, ArrayLengthMut
 
 export const ALL = '*';
 export type Condition = BaseCondition;
-export type Conditions = FixedLengthArray<['*']> | Record<string, Condition>[];
+export type Conditions = FixedLengthArray<['*']> | Condition[];
 
 export interface Dict {
   [key: string]: any;
