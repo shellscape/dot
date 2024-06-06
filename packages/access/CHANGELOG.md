@@ -1,5 +1,13 @@
 # @dot/access ChangeLog
 
+## v0.1.3
+
+_2024-06-06_
+
+### Bugfixes
+
+- access: condition types (5ccd204)
+
 ## v0.1.2
 
 _2024-05-15_
