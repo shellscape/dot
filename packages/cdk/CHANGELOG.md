@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.16.0
+
+_2024-06-09_
+
+### Features
+
+- cdk: expose runtime config for fargate (955210f)
+
 ## v3.15.1
 
 _2024-06-09_
