@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.15.1
+
+_2024-06-09_
+
+### Bugfixes
+
+- cdk: roll back jsonValue (b9ad00d)
+
 ## v3.15.0
 
 _2024-06-09_
