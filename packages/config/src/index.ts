@@ -3,6 +3,8 @@ import mem from 'mem';
 
 import { getSecretValue, getSsmValue, putSsmValue } from './aws';
 
+export { getSecretValue, getSsmValue };
+
 export interface ConfigInitParams<TDefaults, TSecrets, TSsm> {
   defaultConfig: TDefaults;
   secretConfig: TSecrets;
