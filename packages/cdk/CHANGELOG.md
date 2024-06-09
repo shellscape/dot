@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.15.0
+
+_2024-06-09_
+
+### Features
+
+- cdk: allow setting secret values (8c23bae)
+
 ## v3.14.9
 
 _2024-05-15_
