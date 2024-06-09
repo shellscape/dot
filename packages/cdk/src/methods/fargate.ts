@@ -2,9 +2,11 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { InterfaceVpcEndpointAwsService, Vpc, type IVpc } from 'aws-cdk-lib/aws-ec2';
 import {
   ContainerImage,
+  CpuArchitecture,
   LogDriver,
   FargateService,
-  FargateTaskDefinition
+  FargateTaskDefinition,
+  OperatingSystemFamily
 } from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
@@ -17,6 +19,8 @@ import { DotStack } from '../constructs/Stack';
 
 import { addBucket } from './s3';
 import { addSecurityGroup } from './security';
+
+export { CpuArchitecture, OperatingSystemFamily };
 
 export enum ServiceCPUUnits {
   FOUR_VCPU = 4096,
@@ -33,6 +37,7 @@ export enum ServiceMemoryLimit {
 }
 
 export interface AddServiceOptions {
+  architecture?: CpuArchitecture;
   assignPublicIp?: boolean;
   baseDir: string;
   certificateArn: string;
@@ -46,6 +51,7 @@ export interface AddServiceOptions {
   minInstances?: MinMaxNumber<1, 10>;
   name?: string;
   nodeMemorySize?: number;
+  os?: OperatingSystemFamily;
   scope: DotStack;
   vpc?: IVpc;
 }
@@ -58,6 +64,7 @@ export interface AddServiceResult {
 
 export const addFargateService = (options: AddServiceOptions): AddServiceResult => {
   const {
+    architecture = CpuArchitecture.ARM64,
     assignPublicIp = true,
     baseDir,
     certificateArn,
@@ -71,6 +78,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     minInstances = 1,
     name = '',
     nodeMemorySize = 2000,
+    os = OperatingSystemFamily.LINUX,
     scope
   } = options;
   let { vpc } = options;
@@ -95,6 +103,10 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     memoryLimitMiB: memory,
     protocol: ApplicationProtocol.HTTPS,
     publicLoadBalancer: true,
+    runtimePlatform: {
+      cpuArchitecture: architecture,
+      operatingSystemFamily: os
+    },
     serviceName,
     taskImageOptions: {
       containerPort: 80,
