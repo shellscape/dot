@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.17.0
+
+_2024-06-15_
+
+### Features
+
+- cdk: allow setting port, command, and container registry (5dc7de3)
+
 ## v3.16.0
 
 _2024-06-09_
