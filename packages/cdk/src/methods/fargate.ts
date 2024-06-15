@@ -41,6 +41,8 @@ export interface AddServiceOptions {
   assignPublicIp?: boolean;
   baseDir: string;
   certificateArn: string;
+  command?: string[];
+  containerRegistry?: string;
   cpu?: ServiceCPUUnits;
   cpuScaleAtPercent: MinMaxNumber<10, 90>;
   defaultVpc?: boolean;
@@ -52,6 +54,7 @@ export interface AddServiceOptions {
   name?: string;
   nodeMemorySize?: number;
   os?: OperatingSystemFamily;
+  port?: number;
   scope: DotStack;
   vpc?: IVpc;
 }
@@ -68,6 +71,8 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     assignPublicIp = true,
     baseDir,
     certificateArn,
+    command,
+    containerRegistry,
     cpu = ServiceCPUUnits.HALF_VCPU,
     cpuScaleAtPercent = 50,
     defaultVpc,
@@ -79,6 +84,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     name = '',
     nodeMemorySize = 2000,
     os = OperatingSystemFamily.LINUX,
+    port = 80,
     scope
   } = options;
   let { vpc } = options;
@@ -86,10 +92,13 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   const baseName = DotStack.baseName(name, 'service');
   const serviceName = scope.resourceName(baseName);
   const certificate = Certificate.fromCertificateArn(scope, `${serviceName}-cert`, certificateArn);
-
-  const asset = new DockerImageAsset(scope, `${serviceName}-asset`, {
-    directory: baseDir
-  });
+  const image = containerRegistry
+    ? ContainerImage.fromRegistry(containerRegistry)
+    : ContainerImage.fromDockerImageAsset(
+        new DockerImageAsset(scope, `${serviceName}-asset`, {
+          directory: baseDir
+        })
+      );
 
   if (defaultVpc) vpc = Vpc.fromLookup(scope, 'Vpc', { isDefault: true });
 
@@ -109,7 +118,8 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     },
     serviceName,
     taskImageOptions: {
-      containerPort: 80,
+      command,
+      containerPort: port,
       environment: {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
         DEPLOY_ENV: env,
@@ -119,7 +129,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
         ...environmentVariables
       },
       family: `${serviceName}-task-def`,
-      image: ContainerImage.fromDockerImageAsset(asset),
+      image,
       logDriver: LogDriver.awsLogs({
         logRetention: RetentionDays.ONE_WEEK,
         streamPrefix: serviceName
