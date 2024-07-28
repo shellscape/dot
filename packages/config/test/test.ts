@@ -18,6 +18,22 @@ test('init', async (t) => {
   t.truthy(result.put);
 });
 
+test('env export', async (t) => {
+  process.env.DEPLOY_ENV = 'BATCAVE';
+
+  const { env } = await import('../src');
+
+  t.is(env(), process.env.DEPLOY_ENV as any);
+});
+
+test('envPrefix export', async (t) => {
+  process.env.DEPLOY_ENV = 'BATCAVE';
+
+  const { envPrefix } = await import('../src');
+
+  t.is(envPrefix(), `${process.env.DEPLOY_ENV}-`);
+});
+
 test('get → defaults', async (t) => {
   const defaultConfig = {
     BATMAN_ADDRESS: 'BATCAVE'

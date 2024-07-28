@@ -23,11 +23,14 @@ export enum DotEnv {
 }
 
 const log = getLog({ brand: '@dot', name: '\u001b[1D/config' });
-const { DEPLOY_ENV, NODE_ENV } = process.env;
-const deployEnv = DEPLOY_ENV || NODE_ENV;
 
-export const env = (deployEnv === 'production' ? 'prod' : deployEnv) as DotEnv;
-export const envPrefix = `${env}-`;
+export const env = () => {
+  const { DEPLOY_ENV, NODE_ENV } = process.env;
+  const deployEnv = DEPLOY_ENV || NODE_ENV;
+  return (deployEnv === 'production' ? 'prod' : deployEnv) as DotEnv;
+};
+
+export const envPrefix = () => `${env()}-`;
 
 export const init = <TDefaults, TSecrets, TSsm>({
   defaultConfig,
@@ -47,14 +50,17 @@ export const init = <TDefaults, TSecrets, TSsm>({
     }
 
     const envResult = typeof config[key] !== 'undefined' ? config[key] : void 0;
+    const defaultValues: { [key: string]: unknown } = { ...(defaults as any) };
+    const defaultResult = typeof defaultValues[key] !== 'undefined' ? defaultValues[key] : void 0;
 
     log.debug('envResult for:', key, '→', envResult);
+    log.debug('defaultResult for:', key, '→', defaultResult);
 
     const result =
       envResult ||
       (await getSsmValue((ssmKeys as KeyConfig)[key])) ||
       (await getSecretValue((secretKeys as KeyConfig)[key])) ||
-      (defaults as KeyConfig)[key];
+      defaultResult;
 
     if (result === void 0)
       throw new RangeError(
