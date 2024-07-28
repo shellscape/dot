@@ -1,5 +1,13 @@
 # @dot/config ChangeLog
 
+## v2.0.0
+
+_2024-07-28_
+
+### Breaking Changes
+
+- config!: env and envPrefix as function export (cd3b70a)
+
 ## v1.3.0
 
 _2024-06-09_
