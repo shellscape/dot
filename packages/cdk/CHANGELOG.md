@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.17.2
+
+_2024-08-23_
+
+### Updates
+
+- cdk: expand permissions for s3 backups (88d0a88)
+
 ## v3.17.1
 
 _2024-08-23_
