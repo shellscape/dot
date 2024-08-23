@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.17.1
+
+_2024-08-23_
+
+### Updates
+
+- cdk: disable default policy for s3 bucket backups (1dd2f3e)
+
 ## v3.17.0
 
 _2024-06-15_
