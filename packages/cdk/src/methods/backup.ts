@@ -36,6 +36,7 @@ export const addBackup = (options: BackupOptions) => {
   const vaultName = scope.resourceName(DotStack.baseName(name.replace('-backup', ''), 'buv'));
   const backupVault = new BackupVault(scope, vaultName, { backupVaultName: vaultName });
   const plan = new BackupPlan(scope, backupPlanName, { backupPlanName, backupVault });
+  let disableDefaultBackupPolicy: boolean | undefined = void 0;
 
   if (buckets.length && (arns.length || tables.length))
     throw new AssertionError({
@@ -62,6 +63,7 @@ export const addBackup = (options: BackupOptions) => {
 
   if (buckets.length) {
     const roleName = `${backupPlanName}-service-role`;
+    disableDefaultBackupPolicy = true;
     role = new Role(scope, roleName, {
       assumedBy: new ServicePrincipal('backup.amazonaws.com')
     });
@@ -76,7 +78,12 @@ export const addBackup = (options: BackupOptions) => {
     scope.overrideId(role, roleName);
   }
 
-  plan.addSelection(selectionName, { backupSelectionName: selectionName, resources, role });
+  plan.addSelection(selectionName, {
+    backupSelectionName: selectionName,
+    disableDefaultBackupPolicy,
+    resources,
+    role
+  });
 
   if (retain) plan.applyRemovalPolicy(RemovalPolicy.RETAIN);
 
