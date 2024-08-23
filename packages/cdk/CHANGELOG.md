@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.18.0
+
+_2024-08-23_
+
+### Features
+
+- cdk: allow setting bucket versioning (e15e351)
+
 ## v3.17.2
 
 _2024-08-23_
