@@ -68,17 +68,21 @@ export const addBackup = (options: BackupOptions) => {
       assumedBy: new ServicePrincipal('backup.amazonaws.com')
     });
     role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSBackupServiceRolePolicyForBackup')
-    );
-    role.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AWSBackupServiceRolePolicyForS3Backup')
     );
-    role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'));
+    role.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('AWSBackupServiceRolePolicyForS3Restore')
+    );
+
+    // Note: We had AmazonS3ReadOnlyAccess here, but were getting Access Denied errors on the backup
+    // See if we can pare this down in the future
+    role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'));
 
     scope.overrideId(role, roleName);
   }
 
   plan.addSelection(selectionName, {
+    allowRestores: true,
     backupSelectionName: selectionName,
     disableDefaultBackupPolicy,
     resources,
