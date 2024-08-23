@@ -68,6 +68,8 @@ export interface AddBucketOptions {
    * If true, enables static website hosting for the bucket. An `index.html` file must exist within the bucket contents.
    */
   staticHosting?: boolean;
+  /* If true, turns on bucket versioning. This is required if using addBackup with the bucket */
+  versioning?: boolean;
 }
 
 interface AddBucketResult {
@@ -97,7 +99,8 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     publicReadAccess,
     retain = false,
     staticHosting,
-    scope
+    scope,
+    versioning = false
   } = options;
 
   if (autoDeleteObjects && retain)
@@ -153,6 +156,10 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     lifecycleRules,
     publicReadAccess,
     removalPolicy,
+    // Note: If this is ever used with a bucket that accepts overwriting existing objects,
+    // then lifecycle rules need to be added. That's not something I've ever done so we're
+    // leaving that alone for now
+    versioned: versioning,
     websiteIndexDocument
   };
 
