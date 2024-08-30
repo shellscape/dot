@@ -70,7 +70,7 @@ export const init = <TDefaults, TSecrets, TSsm>({
     return result;
   };
 
-  const memoizedGetBase = mem(getBase, { cacheKey: (args) => JSON.stringify(args) });
+  const memFn = mem(getBase, { cacheKey: (args) => JSON.stringify(args) });
 
   /* eslint-disable no-redeclare */
   function get(
@@ -82,7 +82,7 @@ export const init = <TDefaults, TSecrets, TSsm>({
 
     if (process.env.DOT_CONFIG_DISABLE_CACHE) return getBase(key);
 
-    return memoizedGetBase(key);
+    return memFn(key);
   }
 
   const put = (key: keyof typeof ssmKeys, value: string) => {
