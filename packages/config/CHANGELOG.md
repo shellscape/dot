@@ -1,5 +1,13 @@
 # @dot/config ChangeLog
 
+## v2.0.1
+
+_2024-08-30_
+
+### Bugfixes
+
+- config: Memoization (#3)
+
 ## v2.0.0
 
 _2024-07-28_
