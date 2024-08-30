@@ -70,6 +70,8 @@ export const init = <TDefaults, TSecrets, TSsm>({
     return result;
   };
 
+  const memFn = mem(getBase, { cacheKey: (args) => JSON.stringify(args) });
+
   /* eslint-disable no-redeclare */
   function get(
     key: keyof typeof defaults | keyof typeof secretKeys | keyof typeof ssmKeys
@@ -80,8 +82,7 @@ export const init = <TDefaults, TSecrets, TSsm>({
 
     if (process.env.DOT_CONFIG_DISABLE_CACHE) return getBase(key);
 
-    const fn = mem(getBase, { cacheKey: (args) => JSON.stringify(args) });
-    return fn(key);
+    return memFn(key);
   }
 
   const put = (key: keyof typeof ssmKeys, value: string) => {
