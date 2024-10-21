@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.18.1
+
+_2024-10-21_
+
+### Updates
+
+- cdk: update dependencies (0798046)
+
 ## v3.18.0
 
 _2024-08-23_
