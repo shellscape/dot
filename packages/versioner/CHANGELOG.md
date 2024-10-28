@@ -1,5 +1,13 @@
 # @dot/versioner ChangeLog
 
+## v0.4.0
+
+_2024-10-28_
+
+### Features
+
+- versioner: add --no-commit-scopes support for single package repos (2e13d29)
+
 ## v0.3.4
 
 _2024-05-29_
