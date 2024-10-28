@@ -12,7 +12,7 @@ import writePackage from 'write-pkg';
 import yargs from 'yargs-parser';
 
 const argv = yargs(process.argv.slice(2));
-const { dry: dryRun, publish: doPublish, push: doPush, tag: doTag } = argv;
+const { commitScopes = true, dry: dryRun, publish: doPublish, push: doPush, tag: doTag } = argv;
 const log = getLog({ brand: '@dot', name: '\u001b[1D/versioner' });
 const parserOptions = {
   noteKeywords: ['BREAKING CHANGE', 'Breaking Change']
@@ -39,7 +39,9 @@ interface RepoPackage {
 }
 
 const commitChanges = async (cwd: string, shortName: string, version: string) => {
-  const commitMessage = `chore(release): ${shortName} v${version}`;
+  const commitMessage = commitScopes
+    ? `chore(release): ${shortName} v${version}`
+    : `chore(release): v${version}`;
 
   if (dryRun) {
     log.warn(chalk`{yellow Skipping Git Commit}: ${commitMessage}`);
@@ -55,7 +57,7 @@ const commitChanges = async (cwd: string, shortName: string, version: string) =>
 };
 
 const getCommits = async (shortName: string) => {
-  const tagPattern = `${shortName}-v*`;
+  const tagPattern = commitScopes ? `${shortName}-v*` : 'v*';
 
   log.info(chalk`{blue Gathering Commits for tags:} ${tagPattern}`);
 
@@ -68,7 +70,8 @@ const getCommits = async (shortName: string) => {
 
   params = ['--no-pager', 'log', `${latestTag}..HEAD`, '--format=%B%n-hash-%n%H🐒💨🙊'];
   const individuals = `(([\\w-]+,)+)?${shortName}((,[\\w-]+)+)?`;
-  const rePlugin = new RegExp(`^[\\w\\!]+\\((${individuals}|\\*)\\)`, 'i');
+  const scopeExpression = commitScopes ? `\\((${individuals}|\\*)\\)` : '(.+)';
+  const rePlugin = new RegExp(`^[\\w\\!]+${scopeExpression}`, 'i');
   let { stdout } = await execa('git', params);
 
   if (!stdout) {
@@ -159,7 +162,7 @@ const push = async () => {
 };
 
 const tag = async (cwd: string, shortName: string, version: string) => {
-  const prefix = `${shortName}-`;
+  const prefix = commitScopes ? `${shortName}-` : '';
   const tagName = `${prefix}v${version}`;
 
   if (dryRun || doTag === false) {
