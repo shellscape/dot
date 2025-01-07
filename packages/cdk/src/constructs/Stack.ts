@@ -27,6 +27,7 @@ export class DotStack extends Stack {
   public readonly appName: string;
   public readonly env: DeployEnvironment;
   public readonly envPrefix: string;
+  public readonly isProd: boolean;
   public readonly ssmPrefix: string;
 
   constructor(scope: App, props: DotStackProps) {
@@ -41,6 +42,7 @@ export class DotStack extends Stack {
     this.appName = envPrefix + (props.appName || props.name);
     this.env = env;
     this.envPrefix = envPrefix;
+    this.isProd = env === 'prod';
     this.node.setContext('appName', this.appName);
     this.node.setContext('env', this.env);
     this.ssmPrefix = `/${env}/${props.appName || props.name}`;
