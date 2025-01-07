@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.19.0
+
+_2025-01-07_
+
+### Features
+
+- cdk: add amplify, monitoring, signing methods (550aa9a)
+
 ## v3.18.1
 
 _2024-10-21_
