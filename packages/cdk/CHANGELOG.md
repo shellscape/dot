@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.19.1
+
+_2025-01-08_
+
+### Updates
+
+- cdk: update aws-cdk-lib (acc682e)
+
 ## v3.19.0
 
 _2025-01-07_
