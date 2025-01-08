@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.19.2
+
+_2025-01-08_
+
+### Bugfixes
+
+- cdk: allow buckets to enable ACLs (00f8d1a)
+
 ## v3.19.1
 
 _2025-01-08_
