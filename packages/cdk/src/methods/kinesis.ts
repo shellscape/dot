@@ -30,9 +30,8 @@ interface AddStreamResult {
 }
 
 interface AddFirehoseOptions {
+  destination?: IDestination;
   destinationBucket?: Bucket | Omit<AddBucketOptions, 'name' | 'scope'>;
-  // conversion?: DataFormatConversion;
-  destinations?: IDestination[];
   name: string;
   scope: DotStack;
   source: Stream | Omit<AddStreamOptions, 'name' | 'scope'>;
@@ -52,21 +51,20 @@ interface GrantRemoteStreamOptions {
 }
 
 export const addFirehose = (options: AddFirehoseOptions): AddFirehoseResult => {
-  const { /* conversion,*/ destinations, destinationBucket, name, scope, source } = options;
+  const { /* conversion,*/ destination, destinationBucket, name, scope, source } = options;
+
+  if (!destination && !destinationBucket)
+    throw new RangeError('Must provide either desitination or destinationBucket');
+
   const baseName = DotStack.baseName(name, 'firehose');
   const firehoseName = scope.resourceName(baseName);
   const sourceStream =
     source instanceof Stream
       ? source
       : addStream({ name: `${name}-stream`, scope, ...source }).stream;
-  const deliveryProps: DeliveryStreamProps = {
-    deliveryStreamName: firehoseName,
-    destinations: [],
-    sourceStream
-  };
   let bucket: Bucket | undefined;
+  let deliveryProps: DeliveryStreamProps;
 
-  if (destinations) deliveryProps.destinations.push(...destinations);
   if (destinationBucket) {
     bucket =
       destinationBucket instanceof Bucket
@@ -113,11 +111,18 @@ export const addFirehose = (options: AddFirehoseOptions): AddFirehoseResult => {
       })
     );
 
-    const s3Destintation = new S3Bucket(bucket, { /* conversion,*/ role });
-    // (s3Destintation as any).errorOutputPrefix = errorOutputPrefix;
-    // (s3Destintation as any).prefix = prefix;
-    deliveryProps.destinations.push(s3Destintation);
-    (deliveryProps as any).role = role;
+    deliveryProps = {
+      deliveryStreamName: firehoseName,
+      destination: new S3Bucket(bucket, { /* conversion,*/ role }),
+      role,
+      source: sourceStream as any
+    };
+  } else {
+    deliveryProps = {
+      deliveryStreamName: firehoseName,
+      destination: destination!,
+      source: sourceStream as any
+    };
   }
 
   const deliveryStream = new DeliveryStream(scope, firehoseName, deliveryProps);

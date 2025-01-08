@@ -9,7 +9,8 @@ import {
   EventType,
   HttpMethods,
   LifecycleRule,
-  NotificationKeyFilter
+  NotificationKeyFilter,
+  ObjectOwnership
 } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
@@ -52,6 +53,7 @@ export interface AddBucketDeploymentResult {
 export interface AddBucketOptions {
   autoDeleteObjects?: boolean;
   cors?: boolean;
+  enableACLs?: boolean;
   expireAfterDays?: number;
   handlers?: BucketEventHandlerOptions[];
   name: string;
@@ -93,6 +95,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
      */
     autoDeleteObjects = true,
     cors = false,
+    enableACLs = false,
     expireAfterDays,
     handlers,
     name,
@@ -154,6 +157,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     bucketName,
     cors: corsProps,
     lifecycleRules,
+    objectOwnership: enableACLs ? ObjectOwnership.BUCKET_OWNER_PREFERRED : void 0,
     publicReadAccess,
     removalPolicy,
     // Note: If this is ever used with a bucket that accepts overwriting existing objects,
