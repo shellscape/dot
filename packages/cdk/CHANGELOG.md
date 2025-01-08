@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.20.0
+
+_2025-01-08_
+
+### Features
+
+- cdk: add getRemoteSecretValue (db91058)
+
 ## v3.19.2
 
 _2025-01-08_
