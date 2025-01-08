@@ -38,6 +38,11 @@ export const addSecret = (options: AddSecretOptions) => {
   return { secret };
 };
 
+export const getRemoteSecretValue = (secretName: string, scope: DotStack) => {
+  const secret = Secret.fromSecretNameV2(scope, `${+new Date()}-${secretName}`, secretName);
+  return secret.secretValue.toString();
+};
+
 export const grantRemoteSecret = ({
   consumers,
   secretName,
