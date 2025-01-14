@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.20.1
+
+_2025-01-14_
+
+### Bugfixes
+
+- cdk: use unique ids for grantRemote (e03ef4d)
+
 ## v3.20.0
 
 _2025-01-08_
