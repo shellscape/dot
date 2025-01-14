@@ -3,6 +3,7 @@ import { AssertionError } from 'assert';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { ParameterTier, StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
 
@@ -91,7 +92,7 @@ export const grantRemoteParam = ({
   scope
 }: GrantRemoteOptions): ParameterArn => {
   const lastSegment = parameterName.split('/').at(-1);
-  const id = `${+new Date()}-${lastSegment}-grantRemoteParam`;
+  const id = `${nanoid()}-${lastSegment}-grantRemoteParam`;
   const param = StringParameter.fromStringParameterAttributes(scope, id, { parameterName });
 
   consumers.forEach((resource) => param.grantRead(resource));

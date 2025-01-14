@@ -2,6 +2,7 @@ import { SecretsManagerClient, ListSecretsCommand } from '@aws-sdk/client-secret
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { SecretValue } from 'aws-cdk-lib';
+import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
 
@@ -49,7 +50,7 @@ export const grantRemoteSecret = ({
   scope
 }: GrantRemoteOptions): SecretArn => {
   const lastSegment = secretName.split('/').at(-1);
-  const id = `${+new Date()}-${lastSegment}-grantRemoteSecret`;
+  const id = `${nanoid()}-${lastSegment}-grantRemoteSecret`;
   const secret = Secret.fromSecretNameV2(scope, id, secretName);
 
   consumers.forEach((resource) => secret.grantRead(resource));
