@@ -1,5 +1,13 @@
 # @dot/cdk ChangeLog
 
+## v3.20.2
+
+_2025-01-14_
+
+### Bugfixes
+
+- cdk: use nanoid for unique ids for grantRemote (f6fce8b)
+
 ## v3.20.1
 
 _2025-01-14_
