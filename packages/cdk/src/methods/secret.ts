@@ -48,7 +48,9 @@ export const grantRemoteSecret = ({
   secretName,
   scope
 }: GrantRemoteOptions): SecretArn => {
-  const secret = Secret.fromSecretNameV2(scope, `${secretName}-grantRemote`, secretName);
+  const lastSegment = secretName.split('/').at(-1);
+  const id = `${+new Date()}-${lastSegment}-grantRemoteSecret`;
+  const secret = Secret.fromSecretNameV2(scope, id, secretName);
 
   consumers.forEach((resource) => secret.grantRead(resource));
 

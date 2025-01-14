@@ -90,11 +90,9 @@ export const grantRemoteParam = ({
   parameterName,
   scope
 }: GrantRemoteOptions): ParameterArn => {
-  const param = StringParameter.fromStringParameterAttributes(
-    scope,
-    `${parameterName}-grantRemote`,
-    { parameterName }
-  );
+  const lastSegment = parameterName.split('/').at(-1);
+  const id = `${+new Date()}-${lastSegment}-grantRemoteParam`;
+  const param = StringParameter.fromStringParameterAttributes(scope, id, { parameterName });
 
   consumers.forEach((resource) => param.grantRead(resource));
 
