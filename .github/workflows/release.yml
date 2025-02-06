@@ -35,8 +35,8 @@ jobs:
           echo node `node -v`;
           echo pnpm `pnpm -v`
 
-      - name: Install pnpm
-        run: npm install pnpm -g
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
 
       - name: Set Git Config
         run: |

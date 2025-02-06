@@ -12,7 +12,14 @@ import writePackage from 'write-pkg';
 import yargs from 'yargs-parser';
 
 const argv = yargs(process.argv.slice(2));
-const { commitScopes = true, dry: dryRun, publish: doPublish, push: doPush, tag: doTag } = argv;
+const {
+  commitScopes = true,
+  dry: dryRun,
+  publish: doPublish,
+  push: doPush,
+  shortName: shortNameOverride,
+  tag: doTag
+} = argv;
 const log = getLog({ brand: '@dot', name: '\u001b[1D/versioner' });
 const parserOptions = {
   noteKeywords: ['BREAKING CHANGE', 'Breaking Change']
@@ -120,6 +127,24 @@ const getNewVersion = (version: string, commits: Commit[]): string | null => {
   return semver.inc(version, level);
 };
 
+const getRepoUrls = async () => {
+  try {
+    const { stdout: remoteUrl } = await execa('git', ['config', '--get', 'remote.origin.url']);
+    const match = remoteUrl.match(
+      /(?:https:\/\/github\.com\/|git@github\.com:)(?<owner>[^/]+)\/(?<repo>[^.]+)(?:\.git)?/
+    );
+    if (!match?.groups) return null;
+    const { owner, repo } = match.groups;
+    return {
+      commit: `https://github.com/${owner}/${repo}/commit`,
+      // Note: github has a redirect from /issues to /pull for pull requests
+      issue: `https://github.com/${owner}/${repo}/issues`
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
 const publish = async (cwd: string) => {
   if (dryRun || doPublish === false) {
     log.warn(chalk`{yellow Skipping Publish}`);
@@ -174,7 +199,7 @@ const tag = async (cwd: string, shortName: string, version: string) => {
   await execa('git', ['tag', tagName], { cwd, stdio: 'inherit' });
 };
 
-const updateChangelog = (
+const updateChangelog = async (
   commits: Commit[],
   cwd: string,
   targetName: string,
@@ -191,23 +216,17 @@ const updateChangelog = (
   const notes: Notes = { breaking: [], features: [], fixes: [], updates: [] };
   const individuals = `(([\\w-]+,)+)?${shortName}((,[\\w-]+)+)?`;
   const reScope = new RegExp(`^[\\w\\!]+\\((${individuals}|\\*)\\)`, 'i');
+  const reIssue = /\(#\d+\)/;
+  const repoUrls = await getRepoUrls();
 
   for (const { breaking, hash, header, type } of commits) {
-    const ref = /\(#\d+\)/.test(header as string) ? '' : ` (${hash?.substring(0, 7)})`;
-    const message = header?.trim().replace(reScope, '$1') + ref;
-
-    // TODO: changelog links
-    // GITHUB_REPOSITORY;
-    // GITHUB_SERVER_URL;
-
-    // const ref = /\(#\d+\)/.test(header as string)
-    //   ? ''
-    //   : ` ([${hash?.substring(0, 7)}](https://github.com/rollup/plugins/commit/${hash}))`;
-    // const message =
-    //   header
-    //     ?.trim()
-    //     .replace(/\(.+\)!?:/, ':')
-    //     .replace(/\((#(\d+))\)/, '[$1](https://github.com/rollup/plugins/pull/$2)') + ref;
+    const ref = header?.match(reIssue)?.[0] || `(${hash?.substring(0, 7)})`;
+    const cleaned = header?.trim().replace(reScope, '$1').replace(ref, '').trim();
+    const linkRef = ref.replace(/\([#]?(.+?)\)/, '$1');
+    const link = repoUrls
+      ? `([${linkRef}](${reIssue.test(ref) ? repoUrls.issue : repoUrls.commit}/${linkRef}))`
+      : ref;
+    const message = `${cleaned} ${link}`;
 
     if (breaking) {
       notes.breaking.push(message);
@@ -259,17 +278,21 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
     const stripScope: string[] = argv.stripScope?.split(',') || ['^@.+/'];
 
     const { name: targetName }: { name: string } = await import(join(cwd, 'package.json'));
-    const shortName = stripScope.reduce(
-      (prev, strip) => prev.replace(new RegExp(strip), ''),
-      targetName
-    );
+    const shortName =
+      shortNameOverride ||
+      stripScope.reduce((prev, strip) => prev.replace(new RegExp(strip), ''), targetName);
     const parentDirName = dirname(resolve(cwd, '..'));
 
     if (!cwd || !existsSync(cwd)) {
       throw new RangeError(`Could not find directory for package: ${targetName} → ${cwd}`);
     }
 
-    const { default: pkg }: RepoPackage = await import(join(cwd, 'package.json'));
+    const pkgPath = join(cwd, 'package.json');
+    const { default: pkg }: RepoPackage = await import(pkgPath);
+
+    if (!pkg?.version) {
+      throw new RangeError(`${pkgPath} doesn't contain a "version" property. please add one.`);
+    }
 
     if (dryRun) {
       log.warn(chalk`{magenta DRY RUN}: No files will be modified`);
