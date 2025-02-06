@@ -222,9 +222,12 @@ const updateChangelog = async (
   for (const { breaking, hash, header, type } of commits) {
     const ref = header?.match(reIssue)?.[0] || `(${hash?.substring(0, 7)})`;
     const cleaned = header?.trim().replace(reScope, '$1').replace(ref, '').trim();
-    const linkRef = ref.replace(/\([#]?(.+?)\)/, '$1');
+    const [, hashMark = '', linkRef] = ref.match(/\(([#])?(.+?)\)/)!;
+
     const link = repoUrls
-      ? `([${linkRef}](${reIssue.test(ref) ? repoUrls.issue : repoUrls.commit}/${linkRef}))`
+      ? `([${hashMark}${linkRef}](${
+          reIssue.test(ref) ? repoUrls.issue : repoUrls.commit
+        }/${linkRef}))`
       : ref;
     const message = `${cleaned} ${link}`;
 
