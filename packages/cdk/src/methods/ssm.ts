@@ -7,6 +7,18 @@ import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
 
+export const getParamValue = async (name: string) => {
+  try {
+    const client = new SSMClient({ region: DotStack.awsRegion });
+    const command = new GetParameterCommand({ Name: name });
+    const result = await client.send(command);
+
+    return result.Parameter?.Value;
+  } catch (error: any) {
+    return void 0;
+  }
+};
+
 export const paramExists = async (name: string): Promise<boolean> => {
   try {
     const client = new SSMClient({ region: DotStack.awsRegion });
