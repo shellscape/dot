@@ -1,10 +1,12 @@
 import { SecretsManagerClient, ListSecretsCommand } from '@aws-sdk/client-secrets-manager';
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import { ISecret, Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { SecretValue } from 'aws-cdk-lib';
 import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
+
+export { ISecret, Secret, SecretValue };
 
 interface AddSecretOptions {
   consumers?: IGrantable[];
