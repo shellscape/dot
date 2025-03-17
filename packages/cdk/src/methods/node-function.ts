@@ -1,5 +1,5 @@
 import { Size, Duration } from 'aws-cdk-lib';
-import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
+import { Alias, Function, LayerVersion, Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import {
   BundlingOptions,
   ICommandHooks,
@@ -9,12 +9,12 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import chalk from 'chalk';
 
-// FIXME: reconcile this file with function.ts
-
 import { DotStack } from '../constructs/Stack';
 import { log } from '../log';
 
-import { setupFunction, AddFunctionOptions } from './function';
+import { addFunctionAlarms, type AddFunctionOptions } from './function';
+
+export { Runtime };
 
 export interface AddNodeFunctionOptions extends Omit<AddFunctionOptions, 'handlerPath'> {
   /**
@@ -24,6 +24,13 @@ export interface AddNodeFunctionOptions extends Omit<AddFunctionOptions, 'handle
   esbuild?: BundlingOptions;
   handlerExportName?: string;
   hooks?: Partial<ICommandHooks>;
+  runtime?: Runtime;
+}
+
+interface SetupFunctionArgs {
+  fnName: string;
+  handler: Function;
+  options: AddFunctionOptions;
 }
 
 export const addNodeFunction = (options: AddNodeFunctionOptions) => {
@@ -37,6 +44,7 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
     hooks,
     memorySize = 2000,
     name = '',
+    runtime = Runtime.NODEJS_22_X,
     scope,
     storageMb,
     timeout = Duration.minutes(5)
@@ -85,10 +93,65 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
     logRetention: RetentionDays.ONE_WEEK,
     memorySize,
     reservedConcurrentExecutions: concurrency?.reserved,
-    runtime: Runtime.NODEJS_18_X,
+    runtime,
     timeout,
     tracing: Tracing.ACTIVE
   });
 
   return setupFunction({ fnName, handler, options });
+};
+
+const setupFunction = ({ fnName, handler, options }: SetupFunctionArgs) => {
+  const {
+    addEnvars,
+    alarmEmail,
+    concurrency,
+    environmentVariables = {},
+    layers,
+    layerArns,
+    scope
+  } = options;
+
+  if (concurrency?.provisioned) {
+    log.info(' - Provisioning Concurrency for:', chalk.dim(fnName));
+
+    if (concurrency?.provisioned?.max <= 0)
+      throw new RangeError(`concurrency.provisioned.max needs to be greater than 0`);
+
+    const aliasName = `${fnName}-alias`;
+    const alias = new Alias(scope, aliasName, { aliasName, version: handler.latestVersion });
+    const scaling = alias.addAutoScaling({
+      maxCapacity: Math.ceil(concurrency.provisioned.max),
+      minCapacity: Math.ceil(concurrency.provisioned.min || 1)
+    });
+
+    scaling.scaleOnUtilization({ utilizationTarget: concurrency.provisioned.percentage || 0.5 });
+  }
+  // TODO: Add schedule based provisioning
+  // https://docs.aws.amazon.com/cdk/api/latest/docs/aws-lambda-readme.html#autoscaling
+
+  if (layerArns?.length) {
+    const layerVersion = layerArns.map((arn, index) =>
+      LayerVersion.fromLayerVersionArn(scope, `${handler.functionName}-layer-${index}`, arn)
+    );
+    handler.addLayers(...layerVersion);
+  }
+
+  if (layers?.length) handler.addLayers(...layers);
+
+  scope.overrideId(handler, fnName);
+
+  addEnvars
+    // we don't want to override envars that we've already specified
+    ?.filter((varName) => !environmentVariables[varName])
+    .forEach((varName) => {
+      const value = process.env[varName];
+      // eslint-disable-next-line no-unused-expressions
+      value && handler.addEnvironment(varName, value);
+    });
+
+  if (alarmEmail)
+    addFunctionAlarms(alarmEmail, handler, fnName.replace(`${scope.env}-`, ''), scope);
+
+  return handler;
 };
