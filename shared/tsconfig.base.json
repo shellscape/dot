@@ -22,5 +22,5 @@
     "target": "es2020",
     "useUnknownInCatchVariables": false
   },
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "**/recipes"]
 }

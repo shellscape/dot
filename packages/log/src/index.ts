@@ -3,14 +3,16 @@ import loglevel, { MethodFactoryLevels } from 'loglevelnext';
 import defer from 'p-defer';
 
 import { LogFactory } from './LogFactory';
+import { type Transport } from './Transport';
 
 export type { MethodFactoryLevels };
-
+export * from './Transport';
 export { LogFactory };
 
 export interface LogOptions {
   brand?: string;
   name: string;
+  transports?: Transport[];
 }
 
 type LogIndex = {
@@ -52,12 +54,13 @@ export const getLog = (opts?: LogOptions) => {
     level: ({ level }: { level: string }) => colors[level],
     ready,
     template,
-    time: () => new Date().toTimeString().split(' ')[0]
+    time: () => new Date().toTimeString().split(' ')[0],
+    transports: options.transports
   } as any);
   const { DOT_LOG_LEVEL = 'info' } = typeof process === 'undefined' ? defaultEnv : process.env;
   const logOptions = {
     factory,
-    level: DOT_LOG_LEVEL,
+    level: DOT_LOG_LEVEL || 'info',
     name: `dot-log:${options.name}`
   };
 
