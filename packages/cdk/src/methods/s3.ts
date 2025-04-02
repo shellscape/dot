@@ -229,6 +229,7 @@ export const addBucketDeployment = (
     distribution,
     distributionPaths,
     logRetention: RetentionDays.ONE_WEEK,
+    memoryLimit: 1024,
     retainOnDelete: removalPolicy === RemovalPolicy.RETAIN,
     sources: [Source.asset(sourcePath)]
   });
