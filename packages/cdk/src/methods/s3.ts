@@ -54,6 +54,7 @@ export interface AddBucketOptions {
   autoDeleteObjects?: boolean;
   cors?: boolean;
   enableACLs?: boolean;
+  eventBridgeEnabled?: boolean;
   expireAfterDays?: number;
   handlers?: BucketEventHandlerOptions[];
   name: string;
@@ -96,6 +97,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     autoDeleteObjects = true,
     cors = false,
     enableACLs = false,
+    eventBridgeEnabled,
     expireAfterDays,
     handlers,
     name,
@@ -156,6 +158,7 @@ export const addBucket = (options: AddBucketOptions): AddBucketResult => {
     blockPublicAccess,
     bucketName,
     cors: corsProps,
+    eventBridgeEnabled,
     lifecycleRules,
     objectOwnership: enableACLs ? ObjectOwnership.BUCKET_OWNER_PREFERRED : void 0,
     publicReadAccess,
