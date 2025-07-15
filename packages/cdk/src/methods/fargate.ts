@@ -10,7 +10,7 @@ import {
 } from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
-import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ApplicationProtocol, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 import type { MinMaxNumber } from '../types';
@@ -20,7 +20,7 @@ import { DotStack } from '../constructs/Stack';
 import { addBucket } from './s3';
 import { addSecurityGroup } from './security';
 
-export { CpuArchitecture, OperatingSystemFamily };
+export { CpuArchitecture, OperatingSystemFamily, SslPolicy };
 
 export enum ServiceCPUUnits {
   FOUR_VCPU = 4096,
@@ -56,6 +56,7 @@ export interface AddServiceOptions {
   os?: OperatingSystemFamily;
   port?: number;
   scope: DotStack;
+  sslPolicy?: SslPolicy;
   vpc?: IVpc;
 }
 
@@ -85,7 +86,8 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
     nodeMemorySize = 2000,
     os = OperatingSystemFamily.LINUX,
     port = 80,
-    scope
+    scope,
+    sslPolicy
   } = options;
   let { vpc } = options;
   const { env } = scope;
@@ -117,6 +119,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
       operatingSystemFamily: os
     },
     serviceName,
+    sslPolicy,
     taskImageOptions: {
       command,
       containerPort: port,
