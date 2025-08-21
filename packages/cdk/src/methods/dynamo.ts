@@ -11,6 +11,8 @@ import { nanoid } from 'nanoid';
 
 import { DotStack } from '../constructs/Stack';
 
+export { ProjectionType };
+
 interface TableExistsOptions {
   scope: DotStack;
   tableName: string;
