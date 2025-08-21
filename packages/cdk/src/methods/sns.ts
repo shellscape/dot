@@ -9,10 +9,10 @@ import {
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SNSClient, CreateTopicCommand } from '@aws-sdk/client-sns';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
-import { addParam } from './ssm';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
+import { addParam } from './ssm.js';
 
 interface AddTopicOptions {
   displayName?: string;

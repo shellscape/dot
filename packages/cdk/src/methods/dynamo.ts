@@ -9,7 +9,7 @@ import {
 import { IGrantable } from 'aws-cdk-lib/aws-iam';
 import { nanoid } from 'nanoid';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
 interface TableExistsOptions {
   scope: DotStack;

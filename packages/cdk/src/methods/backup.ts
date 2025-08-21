@@ -6,7 +6,7 @@ import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
 interface BackupOptions {
   arns?: string[];

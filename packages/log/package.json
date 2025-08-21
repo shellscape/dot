@@ -10,9 +10,14 @@
   "author": "shellscape",
   "homepage": "https://github.com/shellscape/dot",
   "bugs": "https://github.com/shellscape/dot/issues",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "pnpm -w package:build $PWD",

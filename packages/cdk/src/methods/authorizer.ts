@@ -1,7 +1,7 @@
 import { IdentitySource, RequestAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
 
 export interface AddAuthorizerOptions extends AddNodeFunctionOptions {
   name: string;

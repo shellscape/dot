@@ -9,9 +9,9 @@ import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addBucket } from './s3';
+import { addBucket } from './s3.js';
 
 interface BaseDistOptions {
   certificateArn: string;

@@ -4,8 +4,8 @@ import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { CfnStateMachine, LogLevel, Pass, StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import chalk from 'chalk';
 
-import { log } from '../log';
-import { DotStack } from '../constructs/Stack';
+import { log } from '../log.js';
+import { DotStack } from '../constructs/Stack.js';
 
 export interface AddStepFunctionOptions {
   definitionFile?: string;

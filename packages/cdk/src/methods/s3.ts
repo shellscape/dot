@@ -20,11 +20,11 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { nanoid } from 'nanoid';
 
-import { DotStack } from '../constructs/Stack';
-import { log } from '../log';
+import { DotStack } from '../constructs/Stack.js';
+import { log } from '../log.js';
 
-import { addParam } from './ssm';
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
+import { addParam } from './ssm.js';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
 
 export { EventType } from 'aws-cdk-lib/aws-s3';
 export { RemovalPolicy } from 'aws-cdk-lib';

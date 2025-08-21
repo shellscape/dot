@@ -2,7 +2,7 @@ import * as Amplify from '@aws-cdk/aws-amplify-alpha';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
 interface AddAmplifyAppOptions {
   distPath: string;

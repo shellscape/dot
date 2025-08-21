@@ -1,9 +1,9 @@
 import type { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
 import { MonitoringFacade, SnsAlarmActionStrategy } from 'cdk-monitoring-constructs';
 
-import type { DotStack } from '../constructs/Stack';
+import type { DotStack } from '../constructs/Stack.js';
 
-import { addTopic } from './sns';
+import { addTopic } from './sns.js';
 
 interface AddMonitoringOptions {
   emailAddress: string;

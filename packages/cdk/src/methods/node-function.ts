@@ -9,10 +9,10 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import chalk from 'chalk';
 
-import { DotStack } from '../constructs/Stack';
-import { log } from '../log';
+import { DotStack } from '../constructs/Stack.js';
+import { log } from '../log.js';
 
-import { addFunctionAlarms, type AddFunctionOptions } from './function';
+import { addFunctionAlarms, type AddFunctionOptions } from './function.js';
 
 export { Runtime };
 

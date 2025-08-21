@@ -2,7 +2,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { IPeer, Port, SecurityGroup, SecurityGroupProps } from 'aws-cdk-lib/aws-ec2';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
 interface AddSecurityGroupArgs extends SecurityGroupProps {
   egressRules?: SecurityGroupRuleDefinition[];

@@ -13,12 +13,12 @@ import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import { ApplicationProtocol, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
-import type { MinMaxNumber } from '../types';
+import type { MinMaxNumber } from '../types.js';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addBucket } from './s3';
-import { addSecurityGroup } from './security';
+import { addBucket } from './s3.js';
+import { addSecurityGroup } from './security.js';
 
 export { CpuArchitecture, OperatingSystemFamily, SslPolicy };
 

@@ -1,9 +1,9 @@
 import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Key } from 'aws-cdk-lib/aws-kms';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addParam } from './ssm';
+import { addParam } from './ssm.js';
 
 export interface AddKeyOptions {
   name: string;

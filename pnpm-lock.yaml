@@ -151,26 +151,26 @@ importers:
         specifier: ^2.185.0
         version: 2.185.0(constructs@10.4.2)
       camelcase:
-        specifier: ^6.3.0
-        version: 6.3.0
+        specifier: ^8.0.0
+        version: 8.0.0
       cdk-monitoring-constructs:
         specifier: ^9.4.0
         version: 9.4.0(aws-cdk-lib@2.185.0(constructs@10.4.2))(constructs@10.4.2)
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.4.1
+        version: 5.4.1
       constructs:
         specifier: ^10.4.2
         version: 10.4.2
       nanoid:
-        specifier: 3.3.4
-        version: 3.3.4
+        specifier: 5.1.5
+        version: 5.1.5
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
       yargs-parser:
-        specifier: ^21.1.1
-        version: 21.1.1
+        specifier: ^22.0.0
+        version: 22.0.0
     devDependencies:
       '@types/source-map-support':
         specifier: ^0.5.6
@@ -1777,9 +1777,9 @@ packages:
     resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
     engines: {node: '>=6'}
 
-  camelcase@6.3.0:
-    resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
-    engines: {node: '>=10'}
+  camelcase@8.0.0:
+    resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
+    engines: {node: '>=16'}
 
   caniuse-lite@1.0.30001697:
     resolution: {integrity: sha512-GwNPlWJin8E+d7Gxq96jxM6w0w+VFeyyXRsjU58emtkYqnbwHqXm5uT2uCmO0RQE9htWknOP4xtBlLmM/gWxvQ==}
@@ -2951,9 +2951,9 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  nanoid@3.3.4:
-    resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+  nanoid@5.1.5:
+    resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
+    engines: {node: ^18 || >=20}
     hasBin: true
 
   natural-compare-lite@1.4.0:
@@ -3812,6 +3812,10 @@ packages:
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
+
+  yargs-parser@22.0.0:
+    resolution: {integrity: sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
   yargs@15.4.1:
     resolution: {integrity: sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==}
@@ -6198,7 +6202,7 @@ snapshots:
 
   camelcase@5.3.1: {}
 
-  camelcase@6.3.0: {}
+  camelcase@8.0.0: {}
 
   caniuse-lite@1.0.30001697: {}
 
@@ -7450,7 +7454,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  nanoid@3.3.4: {}
+  nanoid@5.1.5: {}
 
   natural-compare-lite@1.4.0: {}
 
@@ -8430,6 +8434,8 @@ snapshots:
   yargs-parser@20.2.9: {}
 
   yargs-parser@21.1.1: {}
+
+  yargs-parser@22.0.0: {}
 
   yargs@15.4.1:
     dependencies:

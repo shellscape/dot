@@ -21,7 +21,7 @@ test.after(() => {
 test.serial('logging', async (t) => {
   t.is((console.info as sinon.SinonSpy).callCount, 0);
 
-  const { getLog } = await import('..');
+  const { getLog } = await import('../dist/index.js');
   const log = getLog();
   const reTime = /\[\d\d:\d\d:\d\d\]/;
 
@@ -43,7 +43,7 @@ test.serial('logging', async (t) => {
 });
 
 test.serial('nothing logged', async (t) => {
-  const { getLog } = await import('..');
+  const { getLog } = await import('../dist/index.js');
   const log = getLog();
   const reTime = /\[\d\d:\d\d:\d\d\]/;
 
@@ -57,7 +57,7 @@ test.serial('nothing logged', async (t) => {
 });
 
 test.serial('brand option', async (t) => {
-  const { getLog } = await import('..');
+  const { getLog } = await import('../dist/index.js');
   const log = getLog({ brand: '@dot', name: 'batman' });
   const reTime = /\[\d\d:\d\d:\d\d\]/;
 
@@ -71,7 +71,7 @@ test.serial('brand option', async (t) => {
 });
 
 test.serial('name option', async (t) => {
-  const { getLog } = await import('..');
+  const { getLog } = await import('../dist/index.js');
   const log = getLog({ name: 'robin' });
   const reTime = /\[\d\d:\d\d:\d\d\]/;
 
@@ -88,7 +88,7 @@ test.serial('DOT_LOG_LEVEL', async (t) => {
   process.env.DOT_LOG_LEVEL = 'debug';
   t.is((console.debug as sinon.SinonSpy).callCount, 0);
 
-  const { getLog } = await import('..');
+  const { getLog } = await import('../dist/index.js');
   const log = getLog({ name: 'joker' });
 
   log.debug('joker');

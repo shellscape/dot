@@ -5,9 +5,9 @@ import { Function, LayerVersion } from 'aws-cdk-lib/aws-lambda';
 import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { ArnFormat, Duration } from 'aws-cdk-lib';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addTopic } from './sns';
+import { addTopic } from './sns.js';
 
 export interface AddFunctionOptions {
   addEnvars?: string[];

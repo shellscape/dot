@@ -2,7 +2,7 @@ import type { PrefixFactoryOptions } from 'loglevelnext';
 import { PrefixFactory } from 'loglevelnext';
 import type { DeferredPromise } from 'p-defer';
 
-import type { Transport } from './Transport';
+import type { Transport } from './Transport.js';
 
 interface FactoryOptions {
   ready: DeferredPromise<unknown>;

@@ -11,10 +11,10 @@ import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { LambdaFunction as LambdaTarget, SqsQueue } from 'aws-cdk-lib/aws-events-targets';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
-import { addParam } from './ssm';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
+import { addParam } from './ssm.js';
 
 export type CronExpression = string;
 

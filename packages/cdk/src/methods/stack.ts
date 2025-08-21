@@ -1,6 +1,6 @@
 import { App } from 'aws-cdk-lib';
 
-import { DotStack, DotStackProps } from '../constructs/Stack';
+import { DotStack, DotStackProps } from '../constructs/Stack.js';
 
 interface StackOptions extends DotStackProps {
   app: App;

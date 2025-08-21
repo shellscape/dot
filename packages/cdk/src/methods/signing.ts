@@ -3,10 +3,10 @@ import { Provider } from 'aws-cdk-lib/custom-resources';
 import { CfnOutput, CustomResource, RemovalPolicy } from 'aws-cdk-lib';
 import { InlineCode, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 
-import { type DotStack } from '../constructs/Stack';
+import { type DotStack } from '../constructs/Stack.js';
 
-import { addSecret } from './secret';
-import { addParam, getParamValue } from './ssm';
+import { addSecret } from './secret.js';
+import { addParam, getParamValue } from './ssm.js';
 
 export const getKeyPair = (scope: DotStack) => {
   const keyGenFunction = new Function(scope, 'KeyGen', {

@@ -2,7 +2,7 @@ import { App, CfnResource, Resource, Stack, StackProps } from 'aws-cdk-lib';
 import camelcase from 'camelcase';
 import chalk from 'chalk';
 
-import { log } from '../log';
+import { log } from '../log.js';
 
 export type DeployEnvironment = 'dev' | 'prod' | 'stage' | 'test';
 

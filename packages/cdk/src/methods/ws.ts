@@ -19,10 +19,10 @@ import { RemovalPolicy, Stack } from 'aws-cdk-lib/core';
 import { Grant, IGrantable, ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, LogRetention, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
-import { DeployEnvironment, DotStack } from '../constructs/Stack';
+import { DeployEnvironment, DotStack } from '../constructs/Stack.js';
 
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
-import { addParam } from './ssm';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
+import { addParam } from './ssm.js';
 
 interface AddWebsocketApiOptions extends AddNodeFunctionOptions {
   deployEnv?: DeployEnvironment;

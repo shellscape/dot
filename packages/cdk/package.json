@@ -10,12 +10,17 @@
   "author": "shellscape",
   "homepage": "https://github.com/shellscape/dot",
   "bugs": "https://github.com/shellscape/dot/issues",
-  "main": "dist/index.js",
   "bin": {
     "deploy": "bin/deploy"
   },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "pnpm -w package:build $PWD",
@@ -52,13 +57,13 @@
     "@swc-node/register": "^1.10.10",
     "@swc/core": "^1.11.10",
     "aws-cdk-lib": "^2.185.0",
-    "camelcase": "^6.3.0",
+    "camelcase": "^8.0.0",
     "cdk-monitoring-constructs": "^9.4.0",
-    "chalk": "^4.1.2",
+    "chalk": "^5.4.1",
     "constructs": "^10.4.2",
-    "nanoid": "3.3.4",
+    "nanoid": "5.1.5",
     "source-map-support": "^0.5.21",
-    "yargs-parser": "^21.1.1"
+    "yargs-parser": "^22.0.0"
   },
   "devDependencies": {
     "@types/source-map-support": "^0.5.6",

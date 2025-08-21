@@ -1,12 +1,14 @@
 import chalk from 'chalk';
-import loglevel, { MethodFactoryLevels } from 'loglevelnext';
+import type { MethodFactoryLevels } from 'loglevelnext';
+// eslint-disable-next-line
+import { default as loglevel } from 'loglevelnext';
 import defer from 'p-defer';
 
-import { LogFactory } from './LogFactory';
-import { type Transport } from './Transport';
+import { LogFactory } from './LogFactory.js';
+import { type Transport } from './Transport.js';
 
 export type { MethodFactoryLevels };
-export * from './Transport';
+export * from './Transport.js';
 export { LogFactory };
 
 export interface LogOptions {

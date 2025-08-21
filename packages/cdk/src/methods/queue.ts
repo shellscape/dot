@@ -7,10 +7,10 @@ import { DeadLetterQueue, Queue, QueueEncryption } from 'aws-cdk-lib/aws-sqs';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { nanoid } from 'nanoid';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
-import { addParam } from './ssm';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
+import { addParam } from './ssm.js';
 
 interface DeadLetterQueueOptions extends Omit<AddQueueOptions, 'key' | 'name' | 'scope'> {
   maxReceiveCount?: number;

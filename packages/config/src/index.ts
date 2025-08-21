@@ -1,7 +1,7 @@
 import { getLog } from '@dot/log';
 import mem from 'mem';
 
-import { getSecretValue, getSsmValue, putSsmValue } from './aws';
+import { getSecretValue, getSsmValue, putSsmValue } from './aws.js';
 
 export { getSecretValue, getSsmValue };
 

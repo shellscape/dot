@@ -13,8 +13,9 @@
   "bin": {
     "versioner": "dist/versioner.js"
   },
+  "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "pnpm -w package:build $PWD",

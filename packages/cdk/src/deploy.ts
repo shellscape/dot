@@ -6,9 +6,9 @@ import { join } from 'path';
 import chalk from 'chalk';
 import yargs from 'yargs-parser';
 
-import { DotStack } from './constructs/Stack';
-import { addApp, App } from './methods';
-import { log } from './log';
+import { DotStack } from './constructs/Stack.js';
+import { addApp, App } from './methods.js';
+import { log } from './log.js';
 
 export interface CdkDeployment {
   deploy: (app: App) => void;

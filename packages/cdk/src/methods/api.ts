@@ -16,12 +16,12 @@ import { Function } from 'aws-cdk-lib/aws-lambda';
 import { LogGroup, LogRetention, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { RemovalPolicy } from 'aws-cdk-lib';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { AddAuthorizerOptions, addAuthorizer } from './authorizer';
-import { addNodeFunction, AddNodeFunctionOptions } from './node-function';
-import { addOutput } from './output';
-import { addParam } from './ssm';
+import { AddAuthorizerOptions, addAuthorizer } from './authorizer.js';
+import { addNodeFunction, AddNodeFunctionOptions } from './node-function.js';
+import { addOutput } from './output.js';
+import { addParam } from './ssm.js';
 
 interface ApiDomainOptions {
   certificateArn: string;

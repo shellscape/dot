@@ -4,7 +4,7 @@ import { ISecret, Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { SecretValue } from 'aws-cdk-lib';
 import { nanoid } from 'nanoid';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
 export { ISecret, Secret, SecretValue };
 

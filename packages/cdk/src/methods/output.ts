@@ -1,6 +1,6 @@
 import { CfnOutput } from 'aws-cdk-lib';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
 export interface AddOutputOptions {
   name: string;

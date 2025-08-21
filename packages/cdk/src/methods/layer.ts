@@ -1,8 +1,8 @@
 import { Code, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
 
-import { DotStack } from '../constructs/Stack';
+import { DotStack } from '../constructs/Stack.js';
 
-import { addParam } from './ssm';
+import { addParam } from './ssm.js';
 
 export interface AddLayerOptions {
   description?: string;
