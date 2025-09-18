@@ -15,14 +15,17 @@ export interface LogOptions {
   transports?: Transport[];
 }
 
-type LogIndex = {
-  [key in MethodFactoryLevels]: typeof console.log;
-};
-
 export interface Log {
   level: MethodFactoryLevels;
 }
-export type DotLog = Log & Omit<LogIndex, 'silent'>;
+export type ConsoleLogFn = typeof console.log;
+export type DotLog = ReturnType<typeof loglevel.create> & {
+  debug: ConsoleLogFn;
+  error: ConsoleLogFn;
+  info: ConsoleLogFn;
+  trace: ConsoleLogFn;
+  warn: ConsoleLogFn;
+};
 
 const defaultEnv = { DOT_LOG_LEVEL: 'info' };
 const ready = defer();
@@ -66,7 +69,18 @@ export const getLog = (opts?: LogOptions) => {
 
   const log = loglevel.create(logOptions);
 
-  return log as unknown as DotLog;
+  return Object.assign(log, {
+    get level(): MethodFactoryLevels {
+      const numLevel = log.level;
+      const levelNames = ['trace', 'debug', 'info', 'warn', 'error', 'silent'];
+      return levelNames[numLevel] as MethodFactoryLevels;
+    },
+    set level(newLevel: MethodFactoryLevels) {
+      // eslint-disable-next-line sort-keys
+      const levelMap = { trace: 0, debug: 1, info: 2, warn: 3, error: 4, silent: 5 } as const;
+      log.level = levelMap[newLevel as keyof typeof levelMap];
+    }
+  }) as DotLog;
 };
 
 /**
