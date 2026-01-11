@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     if: |
@@ -15,28 +18,30 @@ jobs:
 
     name: release
 
+    permissions:
+      contents: write
+      id-token: write
+
     steps:
-      - name: Checkout Commit
-        uses: actions/checkout@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Checkout Master
-        run: |
-          git branch -f master origin/master
-          git checkout master
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
 
       - name: Sanity Check
         run: |
           echo branch `git branch --show-current`;
           echo node `node -v`;
           echo pnpm `pnpm -v`
-
-      - name: Install PNPM
-        uses: pnpm/action-setup@v4
 
       - name: Set Git Config
         run: |
@@ -65,8 +70,16 @@ jobs:
           # Note: this satisfies aws sdk for @dot/config tests
           AWS_REGION: 'us-east-1'
 
+      - name: OIDC Preflight
+        shell: bash
+        run: |
+          if [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ] || [ -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]; then
+            echo "Missing GitHub Actions OIDC env vars (ACTIONS_ID_TOKEN_REQUEST_URL/TOKEN)." >&2
+            echo "Ensure the job requests permissions: id-token: write." >&2
+            exit 1
+          fi
+
+          echo "OIDC env vars detected."
+
       - name: Release and Publish Changed Packages
         run: pnpm --filter [HEAD^] --workspace-concurrency=1 release
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
