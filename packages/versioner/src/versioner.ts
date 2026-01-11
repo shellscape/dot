@@ -27,6 +27,7 @@ const parserOptions = {
 };
 const reBreaking = new RegExp(`(${parserOptions.noteKeywords.join(')|(')})`);
 const NPM_CLI_SPEC = 'npm@11.5.1';
+const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org/';
 
 type Commit = parser.Commit<string | number | symbol>;
 
@@ -153,7 +154,14 @@ const publish = async (cwd: string) => {
     return;
   }
 
+  if (typeof argv.registry !== 'undefined' && typeof argv.registry !== 'string') {
+    throw new TypeError(`--registry must be a string, received: ${typeof argv.registry}`);
+  }
+
+  const registry = argv.registry || DEFAULT_NPM_REGISTRY;
+
   log.info(chalk`\n{cyan Publishing to NPM}`);
+  log.info(chalk`{grey Registry:} ${registry}`);
 
   const packDir = mkdtempSync(join(tmpdir(), 'versioner-pack-'));
   try {
@@ -172,7 +180,16 @@ const publish = async (cwd: string) => {
 
     await execa(
       'pnpm',
-      ['dlx', NPM_CLI_SPEC, 'publish', '--no-git-checks', ...provenanceArgs, tarballPath],
+      [
+        'dlx',
+        NPM_CLI_SPEC,
+        'publish',
+        '--no-git-checks',
+        '--registry',
+        registry,
+        ...provenanceArgs,
+        tarballPath
+      ],
       { cwd, stdio: 'inherit' }
     );
   } finally {
