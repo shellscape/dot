@@ -27,7 +27,7 @@ const parserOptions = {
 };
 const reBreaking = new RegExp(`(${parserOptions.noteKeywords.join(')|(')})`);
 const NPM_CLI_SPEC = 'npm@11.5.1';
-const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org/';
+const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org';
 
 type Commit = parser.Commit<string | number | symbol>;
 
@@ -154,13 +154,17 @@ const publish = async (cwd: string) => {
     return;
   }
 
-  if (typeof argv.registry !== 'undefined' && typeof argv.registry !== 'string') {
-    throw new TypeError(`--registry must be a string, received: ${typeof argv.registry}`);
+  if (argv.registry != null && typeof argv.registry !== 'string') {
+    throw new TypeError(
+      `--registry must be a string (e.g. "${DEFAULT_NPM_REGISTRY}"), received ${typeof argv.registry}: ${String(
+        argv.registry
+      )}`
+    );
   }
 
-  const registry = argv.registry || DEFAULT_NPM_REGISTRY;
+  const registry = (argv.registry || DEFAULT_NPM_REGISTRY).replace(/\/+$/, '');
 
-  log.info(chalk`\n{cyan Publishing to NPM}`);
+  log.info(chalk`\n{cyan Publishing to registry}`);
   log.info(chalk`{grey Registry:} ${registry}`);
 
   const packDir = mkdtempSync(join(tmpdir(), 'versioner-pack-'));
