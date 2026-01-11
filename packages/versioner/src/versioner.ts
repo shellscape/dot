@@ -155,23 +155,17 @@ const publish = async (cwd: string) => {
   }
 
   const registryOverrideRaw = argv.registry;
-  if (registryOverrideRaw != null && typeof registryOverrideRaw !== 'string') {
+  if (argv.registry && typeof argv.registry !== 'string') {
     throw new TypeError(
       `--registry must be a string (e.g. "${DEFAULT_NPM_REGISTRY}"), received ${typeof registryOverrideRaw}: ${String(
-        registryOverrideRaw
+        argv.registry
       )}`
     );
   }
 
-  const registryOverride = registryOverrideRaw == null ? null : registryOverrideRaw.trim();
-  if (registryOverride != null && registryOverride.length === 0) {
-    throw new TypeError(`--registry must be a non-empty string (e.g. "${DEFAULT_NPM_REGISTRY}")`);
-  }
+  const registry = argv.registry || DEFAULT_NPM_REGISTRY;
 
-  const registry = (registryOverride || DEFAULT_NPM_REGISTRY).replace(/\/+$/, '');
-
-  log.info(chalk`\n{cyan Publishing to registry}`);
-  log.info(chalk`{grey Registry:} ${registry}`);
+  log.info(chalk`\n{cyan Publishing to NPM}: {grey ${registry}}`);
 
   const packDir = mkdtempSync(join(tmpdir(), 'versioner-pack-'));
   try {
