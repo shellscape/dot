@@ -171,11 +171,19 @@ const publish = async (cwd: string) => {
   try {
     await execa('pnpm', ['pack', '--pack-destination', packDir], { cwd, stdio: 'inherit' });
 
-    const tarballs = readdirSync(packDir).filter((file) => file.endsWith('.tgz'));
-    const [tarball] = tarballs;
-    if (!tarball) throw new Error(`Could not find packed tarball in: ${packDir}`);
+    const tarballs = readdirSync(packDir)
+      .filter((file) => file.endsWith('.tgz'))
+      .sort();
 
-    const tarballPath = join(packDir, tarball);
+    if (tarballs.length !== 1) {
+      throw new Error(
+        `Expected exactly 1 packed tarball in: ${packDir} for cwd=${cwd} (found ${
+          tarballs.length
+        }): ${tarballs.join(', ')}`
+      );
+    }
+
+    const tarballPath = join(packDir, tarballs[0]);
     const hasOidcEnv =
       !!process.env.ACTIONS_ID_TOKEN_REQUEST_URL && !!process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
     const provenanceArgs = hasOidcEnv ? ['--provenance'] : [];
