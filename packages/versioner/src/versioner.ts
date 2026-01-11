@@ -181,7 +181,7 @@ const publish = async (cwd: string) => {
       .sort();
 
     if (tarballs.length !== 1) {
-      throw new Error(
+      throw new RangeError(
         `Expected exactly 1 packed tarball in: ${packDir} for cwd=${cwd} (found ${
           tarballs.length
         }): ${tarballs.join(', ')}`
