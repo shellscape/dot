@@ -1,7 +1,8 @@
 import 'source-map-support';
 
 import { dirname, join, resolve } from 'path';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
 
 import { getLog } from '@dot/log';
 import parser from 'conventional-commits-parser';
@@ -25,6 +26,7 @@ const parserOptions = {
   noteKeywords: ['BREAKING CHANGE', 'Breaking Change']
 };
 const reBreaking = new RegExp(`(${parserOptions.noteKeywords.join(')|(')})`);
+const NPM_CLI_SPEC = 'npm@11.5.1';
 
 type Commit = parser.Commit<string | number | symbol>;
 
@@ -153,7 +155,29 @@ const publish = async (cwd: string) => {
 
   log.info(chalk`\n{cyan Publishing to NPM}`);
 
-  await execa('pnpm', ['publish', '--no-git-checks'], { cwd, stdio: 'inherit' });
+  const packDir = mkdtempSync(join(tmpdir(), 'versioner-pack-'));
+  try {
+    await execa('pnpm', ['pack', '--pack-destination', packDir], { cwd, stdio: 'inherit' });
+
+    const tarballs = readdirSync(packDir).filter((file) => file.endsWith('.tgz'));
+    const [tarball] = tarballs;
+    if (!tarball) throw new Error(`Could not find packed tarball in: ${packDir}`);
+
+    const tarballPath = join(packDir, tarball);
+    const hasOidcEnv =
+      !!process.env.ACTIONS_ID_TOKEN_REQUEST_URL && !!process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+    const provenanceArgs = hasOidcEnv ? ['--provenance'] : [];
+
+    log.info(chalk`{grey Using npm CLI:} ${NPM_CLI_SPEC}`);
+
+    await execa(
+      'pnpm',
+      ['dlx', NPM_CLI_SPEC, 'publish', '--no-git-checks', ...provenanceArgs, tarballPath],
+      { cwd, stdio: 'inherit' }
+    );
+  } finally {
+    rmSync(packDir, { force: true, recursive: true });
+  }
 };
 
 const pull = async () => {
