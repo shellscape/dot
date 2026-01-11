@@ -162,7 +162,12 @@ const publish = async (cwd: string) => {
     );
   }
 
-  const registry = (argv.registry || DEFAULT_NPM_REGISTRY).replace(/\/+$/, '');
+  const registryOverride = typeof argv.registry === 'string' ? argv.registry.trim() : null;
+  if (registryOverride != null && registryOverride.length === 0) {
+    throw new TypeError(`--registry must be a non-empty string (e.g. "${DEFAULT_NPM_REGISTRY}")`);
+  }
+
+  const registry = (registryOverride || DEFAULT_NPM_REGISTRY).replace(/\/+$/, '');
 
   log.info(chalk`\n{cyan Publishing to registry}`);
   log.info(chalk`{grey Registry:} ${registry}`);
