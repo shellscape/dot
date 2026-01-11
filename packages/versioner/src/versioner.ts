@@ -154,15 +154,16 @@ const publish = async (cwd: string) => {
     return;
   }
 
-  if (argv.registry != null && typeof argv.registry !== 'string') {
+  const registryOverrideRaw = argv.registry;
+  if (registryOverrideRaw != null && typeof registryOverrideRaw !== 'string') {
     throw new TypeError(
-      `--registry must be a string (e.g. "${DEFAULT_NPM_REGISTRY}"), received ${typeof argv.registry}: ${String(
-        argv.registry
+      `--registry must be a string (e.g. "${DEFAULT_NPM_REGISTRY}"), received ${typeof registryOverrideRaw}: ${String(
+        registryOverrideRaw
       )}`
     );
   }
 
-  const registryOverride = typeof argv.registry === 'string' ? argv.registry.trim() : null;
+  const registryOverride = registryOverrideRaw == null ? null : registryOverrideRaw.trim();
   if (registryOverride != null && registryOverride.length === 0) {
     throw new TypeError(`--registry must be a non-empty string (e.g. "${DEFAULT_NPM_REGISTRY}")`);
   }
