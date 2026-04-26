@@ -49,7 +49,7 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
     storageMb,
     timeout = Duration.minutes(5)
   } = options;
-  const { env } = scope;
+  const { envName } = scope;
 
   const baseName = DotStack.baseName(name, 'fn');
   const baseHooks: ICommandHooks = {
@@ -66,9 +66,9 @@ export const addNodeFunction = (options: AddNodeFunctionOptions) => {
   const defaultEnv: typeof environmentVariables = {
     // Note: https://acloudguru.com/blog/engineering/building-more-cost-effective-lambda-functions-with-1-ms-billing
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-    DEPLOY_ENV: env,
+    DEPLOY_ENV: envName,
     IS_LAMBDA: 'true',
-    NODE_ENV: env,
+    NODE_ENV: envName,
     NODE_OPTIONS: `--enable-source-maps --max-old-space-size=${memorySize}`
   };
 
@@ -151,7 +151,7 @@ const setupFunction = ({ fnName, handler, options }: SetupFunctionArgs) => {
     });
 
   if (alarmEmail)
-    addFunctionAlarms(alarmEmail, handler, fnName.replace(`${scope.env}-`, ''), scope);
+    addFunctionAlarms(alarmEmail, handler, fnName.replace(`${scope.envName}-`, ''), scope);
 
   return handler;
 };

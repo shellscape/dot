@@ -22,6 +22,21 @@ Using npm:
 pnpm add @dot/cdk --save-dev
 ```
 
+## Migrating from v4 to v5
+
+`v5` is required for use with `aws-cdk-lib >= 2.234.0`. The peer dependency is enforced via `peerDependencies`.
+
+In `aws-cdk-lib@2.234.0`, the parent `Stack.env` was changed from a writable property to a getter that returns the resolved AWS `Environment` object (`{ account, region }`). `DotStack` previously assigned a string (`'prod'`, `'dev'`, etc.) to `this.env`, which now throws `TypeError: Cannot set property env of [object Object] which has only a getter`.
+
+To resolve the collision, the field has been renamed:
+
+| v4 (`aws-cdk-lib < 2.234.0`) | v5 (`aws-cdk-lib >= 2.234.0`)                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| `stack.env` → `'prod'`       | `stack.envName` → `'prod'`                                                          |
+|                              | `stack.env` → `Stack.env` getter from `aws-cdk-lib` (returns `{ account, region }`) |
+
+Update any consumer code that read `stack.env` as a deploy-environment string to read `stack.envName` instead. This applies to destructured access (`const { env } = stack`) and template-literal interpolation (`` `${stack.env}` ``) as well — both will now silently read the inherited `aws-cdk-lib` getter (returning `{ account, region }`) rather than the deploy-env string. The `node.tryGetContext('env')` context key is unchanged.
+
 ## Usage
 
 The example below demonstrates a few key features:

@@ -63,7 +63,7 @@ export const addSigningKey = async (scope: DotStack) => {
   }
 
   const { secret: publicKeySecret } = addSecret({
-    name: `${scope.env}-signing-key-pair`,
+    name: `${scope.envName}-signing-key-pair`,
     scope,
     secretName,
     value: keys.keyPair

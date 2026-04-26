@@ -74,7 +74,7 @@ export const addTable = (options: AddTableOptions) => {
   const table = new Table(scope, tableId, {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey,
-    pointInTimeRecovery: scope.env === 'prod',
+    pointInTimeRecovery: scope.envName === 'prod',
     removalPolicy,
     sortKey,
     tableName,

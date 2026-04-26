@@ -20,7 +20,7 @@ interface AddAmplifyAppResult {
 
 export const addAmplifyApp = (options: AddAmplifyAppOptions): AddAmplifyAppResult => {
   const { distPath, domainName, environmentVariables = {}, name, pwaRedirect, scope } = options;
-  const subdomain = options.subdomain ?? scope.env;
+  const subdomain = options.subdomain ?? scope.envName;
   const baseName = DotStack.baseName(name, '-app');
   const appName = scope.resourceName(baseName);
 
@@ -28,7 +28,7 @@ export const addAmplifyApp = (options: AddAmplifyAppOptions): AddAmplifyAppResul
   const app = new Amplify.App(scope, appName, {
     appName
   });
-  const branch = app.addBranch(scope.env, { asset, environmentVariables });
+  const branch = app.addBranch(scope.envName, { asset, environmentVariables });
 
   app.applyRemovalPolicy(RemovalPolicy.DESTROY);
 

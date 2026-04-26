@@ -50,7 +50,7 @@ interface GrantSelfInvokeOptions {
 const FN_TIMEOUT = Duration.minutes(5);
 
 export const addFunctionAlarms = (email: string, fn: Function, fnName: string, scope: DotStack) => {
-  if (scope.env !== 'prod') return;
+  if (scope.envName !== 'prod') return;
 
   const { topic } = addTopic({
     emailAddress: email,
