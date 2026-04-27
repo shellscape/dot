@@ -25,27 +25,27 @@ export class DotStack extends Stack {
   static readonly awsRegion = region;
   public readonly app: App;
   public readonly appName: string;
-  public readonly env: DeployEnvironment;
+  public readonly envName: DeployEnvironment;
   public readonly envPrefix: string;
   public readonly isProd: boolean;
   public readonly ssmPrefix: string;
 
   constructor(scope: App, props: DotStackProps) {
     const stackName = props.name.replace(/-stack$/, '');
-    const env = DEPLOY_ENV as DeployEnvironment;
-    const envPrefix = `${env}-`;
+    const envName = DEPLOY_ENV as DeployEnvironment;
+    const envPrefix = `${envName}-`;
     const stackEnv = { ...(props.env || presetEnv) };
 
     super(scope, `${envPrefix}${stackName}-stack`, { ...props, env: stackEnv });
 
     this.app = scope;
     this.appName = envPrefix + (props.appName || props.name);
-    this.env = env;
+    this.envName = envName;
     this.envPrefix = envPrefix;
-    this.isProd = env === 'prod';
+    this.isProd = envName === 'prod';
     this.node.setContext('appName', this.appName);
-    this.node.setContext('env', this.env);
-    this.ssmPrefix = `/${env}/${props.appName || props.name}`;
+    this.node.setContext('env', this.envName);
+    this.ssmPrefix = `/${envName}/${props.appName || props.name}`;
   }
 
   static baseName(input: string, suffix: string) {

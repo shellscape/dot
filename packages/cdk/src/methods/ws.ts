@@ -151,7 +151,7 @@ export const addWebsocketApi = (options: AddWebsocketApiOptions) => {
   // Note: The following log-related setup is necessary as of 2/22/22
   // eslint-disable-next-line no-new
   const execLogs = new LogGroup(scope, 'ExecutionLogs', {
-    logGroupName: `/aws/apigateway/${api.apiId}/${scope.env}`,
+    logGroupName: `/aws/apigateway/${api.apiId}/${scope.envName}`,
     removalPolicy: RemovalPolicy.DESTROY,
     retention: RetentionDays.ONE_WEEK
   });

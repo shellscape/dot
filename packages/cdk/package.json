@@ -15,7 +15,7 @@
     "deploy": "bin/deploy"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm -w package:build $PWD",
@@ -51,11 +51,11 @@
     "@smithy/types": "^4.1.0",
     "@swc-node/register": "^1.10.10",
     "@swc/core": "^1.11.10",
-    "aws-cdk-lib": "^2.185.0",
+    "aws-cdk-lib": "^2.234.0",
     "camelcase": "^6.3.0",
     "cdk-monitoring-constructs": "^9.4.0",
     "chalk": "^4.1.2",
-    "constructs": "^10.4.2",
+    "constructs": "^10.5.0",
     "nanoid": "3.3.4",
     "source-map-support": "^0.5.21",
     "yargs-parser": "^21.1.1"
