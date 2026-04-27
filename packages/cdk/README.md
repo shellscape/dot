@@ -24,7 +24,7 @@ pnpm add @dot/cdk --save-dev
 
 ## Migrating from v4 to v5
 
-`v5` is required for use with `aws-cdk-lib >= 2.234.0`. The peer dependency is enforced via `peerDependencies`.
+`v5` is required for use with `aws-cdk-lib >= 2.234.0`.
 
 In `aws-cdk-lib@2.234.0`, the parent `Stack.env` was changed from a writable property to a getter that returns the resolved AWS `Environment` object (`{ account, region }`). `DotStack` previously assigned a string (`'prod'`, `'dev'`, etc.) to `this.env`, which now throws `TypeError: Cannot set property env of [object Object] which has only a getter`.
 
