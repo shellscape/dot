@@ -1,6 +1,7 @@
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { InterfaceVpcEndpointAwsService, Vpc, type IVpc } from 'aws-cdk-lib/aws-ec2';
 import {
+  type AwsLogDriverProps,
   ContainerImage,
   CpuArchitecture,
   LogDriver,
@@ -39,6 +40,7 @@ export enum ServiceMemoryLimit {
 export interface AddServiceOptions {
   architecture?: CpuArchitecture;
   assignPublicIp?: boolean;
+  awsLogs?: Partial<AwsLogDriverProps>;
   baseDir: string;
   certificateArn: string;
   command?: string[];
@@ -70,6 +72,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   const {
     architecture = CpuArchitecture.ARM64,
     assignPublicIp = true,
+    awsLogs,
     baseDir,
     certificateArn,
     command,
@@ -134,8 +137,11 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
       family: `${serviceName}-task-def`,
       image,
       logDriver: LogDriver.awsLogs({
-        logRetention: RetentionDays.ONE_WEEK,
-        streamPrefix: serviceName
+        streamPrefix: serviceName,
+        // CDK throws if both `logGroup` and `logRetention` are set; skip the
+        // default when caller supplies their own log group.
+        ...(!awsLogs?.logGroup && { logRetention: RetentionDays.ONE_WEEK }),
+        ...awsLogs
       })
     },
     vpc
