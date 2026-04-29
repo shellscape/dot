@@ -40,7 +40,7 @@ export enum ServiceMemoryLimit {
 export interface AddServiceOptions {
   architecture?: CpuArchitecture;
   assignPublicIp?: boolean;
-  awslogs?: Partial<AwsLogDriverProps>;
+  awsLogs?: Partial<AwsLogDriverProps>;
   baseDir: string;
   certificateArn: string;
   command?: string[];
@@ -72,7 +72,7 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
   const {
     architecture = CpuArchitecture.ARM64,
     assignPublicIp = true,
-    awslogs,
+    awsLogs,
     baseDir,
     certificateArn,
     command,
@@ -137,9 +137,11 @@ export const addFargateService = (options: AddServiceOptions): AddServiceResult 
       family: `${serviceName}-task-def`,
       image,
       logDriver: LogDriver.awsLogs({
-        logRetention: RetentionDays.ONE_WEEK,
         streamPrefix: serviceName,
-        ...awslogs
+        // CDK throws if both `logGroup` and `logRetention` are set; skip the
+        // default when caller supplies their own log group.
+        ...(!awsLogs?.logGroup && { logRetention: RetentionDays.ONE_WEEK }),
+        ...awsLogs
       })
     },
     vpc
